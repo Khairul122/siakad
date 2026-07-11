@@ -1,0 +1,44 @@
+name: sistem_akademik
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  ionicons: ^0.2.2
+  image_picker: ^1.1.2
+  http: ^1.2.0
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
+  provider: ^6.1.2
+  flutter_secure_storage: ^9.2.2
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/logo_universitas.png
+    - assets/images/universitas.jpg
+    - assets/images/info1.jpg
+    - assets/images/profil1.jpg
+    - assets/images/info2.jpg
+    - assets/images/info3.png
+    - assets/dosen/
+
+  fonts:
+    - family: Righteous
+      fonts:
+        - asset: assets/font/Righteous-Regular.ttf
