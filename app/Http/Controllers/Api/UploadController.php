@@ -29,7 +29,7 @@ class UploadController extends Controller
         $path = $file->storeAs("uploads/{$folder}", $filename, 'public');
 
         return response()->json([
-            'url' => Storage::disk('public')->url($path),
+            'url' => url('storage/' . $path),
         ], 201);
     }
 }

@@ -25,7 +25,7 @@ class KrsTable
                     ->counts('mataKuliah')
                     ->label('Jml MK'),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d F Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

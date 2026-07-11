@@ -5,8 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\HasDynamicStorageUrls;
+
 class Tagihan extends Model
 {
+    use HasDynamicStorageUrls;
+
     protected $table = 'tagihan';
     public $timestamps = false;
 
@@ -28,5 +32,15 @@ class Tagihan extends Model
     public function mahasiswa(): BelongsTo
     {
         return $this->belongsTo(Mahasiswa::class, 'uid', 'uid');
+    }
+
+    public function getBuktiUrlAttribute($value)
+    {
+        return $this->getDynamicUrl($value);
+    }
+
+    public function setBuktiUrlAttribute($value)
+    {
+        $this->attributes['bukti_url'] = $this->cleanStoragePath($value);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tagihans\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -75,15 +76,17 @@ class TagihanForm
                             ->prefixIcon('heroicon-o-identification')
                             ->placeholder('Contoh: 13200xxxxxxxx')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                        TextInput::make('tanggal_konfirmasi')
+                        DateTimePicker::make('tanggal_konfirmasi')
                             ->label('Tanggal Konfirmasi')
                             ->disabled()
                             ->prefixIcon('heroicon-o-clock')
+                            ->native(false)
                             ->dehydrated(false),
-                        TextInput::make('tanggal_lunas')
+                        DateTimePicker::make('tanggal_lunas')
                             ->label('Tanggal Lunas')
                             ->disabled()
                             ->prefixIcon('heroicon-o-clock')
+                            ->native(false)
                             ->dehydrated(false),
                         FileUpload::make('bukti_url')
                             ->label('Bukti Transfer / Pembayaran')

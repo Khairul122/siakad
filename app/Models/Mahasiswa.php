@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+use App\Traits\HasDynamicStorageUrls;
+
 class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
 {
-    use Authenticatable, Notifiable;
+    use Authenticatable, Notifiable, HasDynamicStorageUrls;
 
     protected $table = 'mahasiswa';
     protected $primaryKey = 'uid';
@@ -88,5 +90,15 @@ class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
     public function presensi(): HasMany
     {
         return $this->hasMany(Presensi::class, 'mahasiswa_uid', 'uid');
+    }
+
+    public function getPhotoUrlAttribute($value)
+    {
+        return $this->getDynamicUrl($value);
+    }
+
+    public function setPhotoUrlAttribute($value)
+    {
+        $this->attributes['photo_url'] = $this->cleanStoragePath($value);
     }
 }

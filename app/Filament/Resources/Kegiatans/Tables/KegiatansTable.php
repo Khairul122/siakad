@@ -16,14 +16,15 @@ class KegiatansTable
         return $table
             ->columns([
                 ImageColumn::make('gambar_url')
-                    ->label('Banner'),
+                    ->label('Banner')
+                    ->disk('public'),
                 TextColumn::make('judul')
                     ->label('Nama Kegiatan')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tanggal')
                     ->label('Tanggal & Waktu')
-                    ->dateTime()
+                    ->dateTime('d F Y H:i')
                     ->sortable(),
                 TextColumn::make('lokasi')
                     ->label('Lokasi')

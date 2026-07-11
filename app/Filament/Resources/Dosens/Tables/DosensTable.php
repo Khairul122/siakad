@@ -19,6 +19,7 @@ class DosensTable
             ->columns([
                 ImageColumn::make('photo_url')
                     ->label('Foto')
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('nip')
                     ->label('NIP')

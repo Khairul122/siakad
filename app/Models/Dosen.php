@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+use App\Traits\HasDynamicStorageUrls;
+
 class Dosen extends Model implements AuthenticatableContract, JWTSubject
 {
-    use Authenticatable, Notifiable;
+    use Authenticatable, Notifiable, HasDynamicStorageUrls;
 
     protected $table = 'dosen';
     protected $primaryKey = 'uid';
@@ -56,5 +58,15 @@ class Dosen extends Model implements AuthenticatableContract, JWTSubject
     public function masukan(): HasMany
     {
         return $this->hasMany(Masukan::class, 'uid', 'uid');
+    }
+
+    public function getPhotoUrlAttribute($value)
+    {
+        return $this->getDynamicUrl($value);
+    }
+
+    public function setPhotoUrlAttribute($value)
+    {
+        $this->attributes['photo_url'] = $this->cleanStoragePath($value);
     }
 }

@@ -19,6 +19,7 @@ class MahasiswasTable
             ->columns([
                 ImageColumn::make('photo_url')
                     ->label('Foto')
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('nim')
                     ->label('NIM')

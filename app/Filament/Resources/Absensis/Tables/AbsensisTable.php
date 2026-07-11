@@ -30,7 +30,7 @@ class AbsensisTable
                     ->sortable(),
                 TextColumn::make('tanggal')
                     ->label('Tanggal')
-                    ->date()
+                    ->date('d F Y')
                     ->sortable(),
                 TextColumn::make('ruangan')
                     ->label('Ruangan')

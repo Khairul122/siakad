@@ -15,11 +15,13 @@ class InformasisTable
     {
         return $table
             ->columns([
-                ImageColumn::make('gambar_url'),
+                ImageColumn::make('gambar_url')
+                    ->disk('public'),
                 TextColumn::make('judul')
                     ->searchable(),
                 TextColumn::make('tanggal')
-                    ->dateTime()
+                    ->label('Tanggal Publikasi')
+                    ->dateTime('d F Y H:i')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

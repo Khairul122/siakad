@@ -34,7 +34,8 @@ class TagihansTable
                         default => 'gray',
                     }),
                 TextColumn::make('jatuh_tempo')
-                    ->date()
+                    ->label('Jatuh Tempo')
+                    ->date('d F Y')
                     ->sortable(),
             ])
             ->filters([

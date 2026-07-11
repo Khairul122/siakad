@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Mahasiswas\Schemas;
 
 use App\Models\Dosen;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -55,10 +56,10 @@ class MahasiswaForm
                             ->prefixIcon('heroicon-o-phone')
                             ->placeholder('Contoh: 0812XXXXXXXX')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                        TextInput::make('tanggal_lahir')
+                        DatePicker::make('tanggal_lahir')
                             ->label('Tanggal Lahir')
                             ->prefixIcon('heroicon-o-calendar')
-                            ->placeholder('YYYY-MM-DD')
+                            ->native(false)
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         FileUpload::make('photo_url')
                             ->label('Foto Profil')
