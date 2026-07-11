@@ -1,0 +1,11 @@
+/* Custom Backend Style override to match Flutter App color & layout */
+
+/* Set create and edit forms to stretch to full width */
+.fi-resource-create-record-page .fi-page-content div,
+.fi-resource-create-record-page .fi-page-content form,
+.fi-resource-create-record-page .fi-page-content section,
+.fi-resource-edit-record-page .fi-page-content div,
+.fi-resource-edit-record-page .fi-page-content form,
+.fi-resource-edit-record-page .fi-page-content section {
+    max-width: none !important;
+}

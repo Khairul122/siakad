@@ -1,0 +1,3184 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SIAKAD REST API",
+        "description": "REST API untuk Sistem Informasi Akademik, dibangun dari skema siakad.sql. Autentikasi memakai JWT mandiri (register/login sendiri, tidak lagi bergantung pada Firebase).",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "SIAKAD API server"
+        }
+    ],
+    "paths": {
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrasi akun mahasiswa atau dosen baru",
+                "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "role",
+                                    "uid",
+                                    "nama",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "mahasiswa",
+                                            "dosen"
+                                        ]
+                                    },
+                                    "uid": {
+                                        "type": "string",
+                                        "example": "mhs-001"
+                                    },
+                                    "nama": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6
+                                    },
+                                    "nim": {
+                                        "description": "wajib jika role=mahasiswa",
+                                        "type": "string"
+                                    },
+                                    "nip": {
+                                        "description": "opsional jika role=dosen",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil didaftarkan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login dan menerbitkan JWT",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "role",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "mahasiswa",
+                                            "dosen"
+                                        ]
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil login, mengembalikan access_token"
+                    },
+                    "401": {
+                        "description": "Email atau password salah"
+                    }
+                }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Profil user yang sedang login",
+                "operationId": "b5de204f5e452ef51327c691aa99e77c",
+                "responses": {
+                    "200": {
+                        "description": "Data user saat ini"
+                    },
+                    "401": {
+                        "description": "Token tidak valid"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Minta kode OTP reset password (belum terintegrasi pengiriman email nyata)",
+                "operationId": "f51c7074de53475eab87e336cc4e06a6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP dibuat. Di lingkungan non-production, OTP dikembalikan langsung di response sebagai placeholder karena belum ada integrasi email."
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Reset password memakai kode OTP",
+                "operationId": "96e44e1ebcd811418fd95ee4c56162f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "otp",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password berhasil diperbarui"
+                    },
+                    "400": {
+                        "description": "OTP salah/kadaluwarsa/sudah dipakai"
+                    }
+                }
+            }
+        },
+        "/api/auth/change-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Ganti password untuk user yang sedang login (verifikasi password lama)",
+                "operationId": "58e67cdbde52513b62902b05abf9abcb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "old_password",
+                                    "new_password"
+                                ],
+                                "properties": {
+                                    "old_password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password berhasil diperbarui"
+                    },
+                    "400": {
+                        "description": "Password lama salah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/absensi": {
+            "get": {
+                "tags": [
+                    "Absensi"
+                ],
+                "summary": "Daftar absensi milik mahasiswa yang login (dosen melihat semua)",
+                "operationId": "da5c4b6b3913989a91bac8355bcd0844",
+                "responses": {
+                    "200": {
+                        "description": "Daftar absensi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Absensi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Absensi"
+                ],
+                "summary": "Catat absensi (mahasiswa)",
+                "operationId": "4b92721147cd3244f0b3aef6cbe3c674",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Absensi"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dicatat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/absensi/{id}": {
+            "get": {
+                "tags": [
+                    "Absensi"
+                ],
+                "summary": "Detail absensi",
+                "operationId": "3227551001257c06681b4f62df0c35b8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail absensi"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Absensi"
+                ],
+                "summary": "Ubah absensi (mahasiswa pemilik)",
+                "operationId": "d101780a90de06516329ca8963df0444",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Absensi"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Absensi"
+                ],
+                "summary": "Hapus absensi (mahasiswa pemilik)",
+                "operationId": "3ba6e9cd87b3da71fab925b2de2e5a48",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dosen": {
+            "get": {
+                "tags": [
+                    "Dosen"
+                ],
+                "summary": "Daftar semua dosen",
+                "operationId": "d6d7bf80bfbf9fdf12e50e9904063c98",
+                "responses": {
+                    "200": {
+                        "description": "Daftar dosen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dosen/{uid}": {
+            "get": {
+                "tags": [
+                    "Dosen"
+                ],
+                "summary": "Detail profil dosen",
+                "operationId": "9843e0216ec72ff048caab7d2b4bb6d4",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail dosen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dosen"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Dosen"
+                ],
+                "summary": "Ubah profil dosen (hanya pemilik akun)",
+                "operationId": "22fcd9b9e076aabcd0b664094338f88d",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Dosen"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    },
+                    "403": {
+                        "description": "Bukan pemilik akun"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Dosen"
+                ],
+                "summary": "Hapus akun dosen (hanya pemilik akun)",
+                "operationId": "e038e02103be0682c8947add4e7f12f9",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    },
+                    "403": {
+                        "description": "Bukan pemilik akun"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/informasi": {
+            "get": {
+                "tags": [
+                    "Informasi"
+                ],
+                "summary": "Daftar informasi (semua role)",
+                "operationId": "2f72568f912ff9da04cc4e937532aee6",
+                "responses": {
+                    "200": {
+                        "description": "Daftar informasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Informasi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Informasi"
+                ],
+                "summary": "Tambah informasi (dosen)",
+                "operationId": "41baee3916b5b407c97626d2b346b976",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Informasi"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/informasi/{id}": {
+            "get": {
+                "tags": [
+                    "Informasi"
+                ],
+                "summary": "Detail informasi",
+                "operationId": "c6e67ef5dcde1dbea255be144e0299a1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail informasi"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Informasi"
+                ],
+                "summary": "Ubah informasi (dosen)",
+                "operationId": "85d048689f669cab44cd32397cb7bac1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Informasi"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Informasi"
+                ],
+                "summary": "Hapus informasi (dosen)",
+                "operationId": "709d1dc03806a116ef868f1d2f2f5506",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan": {
+            "get": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Daftar kegiatan (semua role)",
+                "operationId": "f68622cb42d33f27cb8e341d6415fdbd",
+                "responses": {
+                    "200": {
+                        "description": "Daftar kegiatan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Kegiatan"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Tambah kegiatan (dosen)",
+                "operationId": "25089bdc8a14612f19ff92b6266f5ae8",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Kegiatan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{id}": {
+            "get": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Detail kegiatan",
+                "operationId": "cf360e875490409bdb2e7093e6be3241",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail kegiatan"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Ubah kegiatan (dosen)",
+                "operationId": "fd31b7a167bac092066f69ca063148e8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Kegiatan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Hapus kegiatan (dosen)",
+                "operationId": "b6bfb77a880090e63443054424b4c31f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jadwal-kuliah": {
+            "get": {
+                "tags": [
+                    "Jadwal Kuliah"
+                ],
+                "summary": "Daftar jadwal kuliah milik mahasiswa yang login (dosen melihat semua)",
+                "operationId": "fa1ee7907270e8aa91989bff6978d9e2",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jadwal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/JadwalKuliah"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Jadwal Kuliah"
+                ],
+                "summary": "Tambah jadwal kuliah (mahasiswa)",
+                "operationId": "ac1a00c3b4c32cf67b0d506ef1d1d4c7",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JadwalKuliah"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jadwal-kuliah/{id}": {
+            "get": {
+                "tags": [
+                    "Jadwal Kuliah"
+                ],
+                "summary": "Detail jadwal kuliah",
+                "operationId": "5cb187943d36ae515be6d705d7b294d0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail jadwal"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Jadwal Kuliah"
+                ],
+                "summary": "Ubah jadwal kuliah (mahasiswa pemilik)",
+                "operationId": "e193e2430fe732609ce3127973e01892",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JadwalKuliah"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Jadwal Kuliah"
+                ],
+                "summary": "Hapus jadwal kuliah (mahasiswa pemilik)",
+                "operationId": "a393c6624b1ab54f252bf74bdc72b5c0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jadwal-mengajar": {
+            "get": {
+                "tags": [
+                    "Jadwal Mengajar"
+                ],
+                "summary": "Daftar jadwal mengajar milik dosen yang login",
+                "operationId": "a6e0c5b033761eead10ea480b529aa0f",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jadwal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/JadwalMengajar"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Jadwal Mengajar"
+                ],
+                "summary": "Tambah jadwal mengajar (dosen)",
+                "operationId": "068a57bd1cc0df047eb2d6fafb2fc584",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JadwalMengajar"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jadwal-mengajar/{id}": {
+            "get": {
+                "tags": [
+                    "Jadwal Mengajar"
+                ],
+                "summary": "Detail jadwal mengajar",
+                "operationId": "d94089299a57a88497f08c7b1a552eac",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail jadwal"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Jadwal Mengajar"
+                ],
+                "summary": "Ubah jadwal mengajar (dosen pemilik)",
+                "operationId": "cbba14abf6adfd4ba18332e208281acc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JadwalMengajar"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Jadwal Mengajar"
+                ],
+                "summary": "Hapus jadwal mengajar (dosen pemilik)",
+                "operationId": "e8a19786d2775d5e42865f1d512c5679",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/krs": {
+            "get": {
+                "tags": [
+                    "KRS"
+                ],
+                "summary": "Daftar KRS milik mahasiswa yang login (dosen bisa filter ?uid=)",
+                "operationId": "63350e0f902c2dd25c241dbafcac66c0",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar KRS beserta mata kuliahnya"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "KRS"
+                ],
+                "summary": "Buat KRS baru beserta daftar mata kuliah (mahasiswa)",
+                "operationId": "fc1a7a8c586ed390d6429390851caeaa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tahun_akademik",
+                                    "semester",
+                                    "mata_kuliah"
+                                ],
+                                "properties": {
+                                    "tahun_akademik": {
+                                        "type": "string"
+                                    },
+                                    "semester": {
+                                        "type": "string"
+                                    },
+                                    "mata_kuliah": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/MataKuliahKrs"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "KRS berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Krs"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Bukan role mahasiswa"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/krs/{id}": {
+            "get": {
+                "tags": [
+                    "KRS"
+                ],
+                "summary": "Detail KRS beserta mata kuliahnya",
+                "operationId": "8c8c3d1c0e2649c2d158ba816fd2a973",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail KRS",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Krs"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "KRS"
+                ],
+                "summary": "Ubah KRS (mengganti seluruh daftar mata kuliah jika dikirim)",
+                "operationId": "564771bece8d8fba88138c08208dd06b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "KRS"
+                ],
+                "summary": "Hapus KRS beserta mata kuliahnya",
+                "operationId": "48434e96c82943a8f044e4cc06f4f9e1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/khs": {
+            "get": {
+                "tags": [
+                    "KHS"
+                ],
+                "summary": "Daftar KHS milik mahasiswa yang login (dosen melihat semua)",
+                "operationId": "559872d20f4ce6bfcc93de9be5cf7a23",
+                "responses": {
+                    "200": {
+                        "description": "Daftar KHS",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Khs"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "KHS"
+                ],
+                "summary": "Tambah nilai KHS (dosen)",
+                "operationId": "785ffdc64be8adcf2fb2f4cad5a2497f",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Khs"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/khs/{id}": {
+            "get": {
+                "tags": [
+                    "KHS"
+                ],
+                "summary": "Detail KHS",
+                "operationId": "2f4daba7893358d0bc7d8fb1916e04e1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail KHS"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "KHS"
+                ],
+                "summary": "Ubah nilai KHS (dosen)",
+                "operationId": "83178976a21ecbcdae617975d92fff10",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Khs"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "KHS"
+                ],
+                "summary": "Hapus KHS (dosen)",
+                "operationId": "67953b427f5fa2517b70bff28b3571b6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mahasiswa": {
+            "get": {
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Daftar semua mahasiswa (khusus dosen)",
+                "operationId": "c4cf8398d7f18e556fa2e5d7c3e95137",
+                "parameters": [
+                    {
+                        "name": "dosen_pembimbing_uid",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "kelas",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar mahasiswa"
+                    },
+                    "403": {
+                        "description": "Bukan role dosen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mahasiswa/{uid}": {
+            "get": {
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Detail profil mahasiswa (diri sendiri atau oleh dosen)",
+                "operationId": "17d863f88bfecc4776da4308b118cb9c",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail mahasiswa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mahasiswa"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Akses ditolak"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Ubah profil mahasiswa (hanya pemilik akun)",
+                "operationId": "a53d0e2637d03f8cfc7710c05dc9335e",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Mahasiswa"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    },
+                    "403": {
+                        "description": "Bukan pemilik akun"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Mahasiswa"
+                ],
+                "summary": "Hapus akun mahasiswa (hanya pemilik akun)",
+                "operationId": "5b3cc881aacca73f3a73c8456cb26069",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    },
+                    "403": {
+                        "description": "Bukan pemilik akun"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/nilai": {
+            "get": {
+                "tags": [
+                    "Nilai"
+                ],
+                "summary": "Daftar nilai (mahasiswa: milik sendiri, dosen: filter ?kelas=)",
+                "operationId": "2c1f0c6978b01bd797466b27c996af4d",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar nilai",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Nilai"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/nilai/{kelas}/{mahasiswaUid}": {
+            "get": {
+                "tags": [
+                    "Nilai"
+                ],
+                "summary": "Detail nilai satu mahasiswa di satu kelas",
+                "operationId": "bf7107e514bbc73005a980099f28626f",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail nilai"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Nilai"
+                ],
+                "summary": "Input/ubah nilai (upsert, hanya dosen)",
+                "operationId": "fce06ae521e1ffb8280f932b4c0c7b16",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tugas",
+                                    "uts",
+                                    "uas"
+                                ],
+                                "properties": {
+                                    "nim": {
+                                        "type": "string"
+                                    },
+                                    "nama": {
+                                        "type": "string"
+                                    },
+                                    "tugas": {
+                                        "type": "integer",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    },
+                                    "uts": {
+                                        "type": "integer",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    },
+                                    "uas": {
+                                        "type": "integer",
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Nilai berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Nilai"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Bukan role dosen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Nilai"
+                ],
+                "summary": "Hapus nilai (dosen)",
+                "operationId": "3f23eac0d66ef3ffbacbfcbe3853301a",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/presensi": {
+            "get": {
+                "tags": [
+                    "Presensi"
+                ],
+                "summary": "Daftar presensi (mahasiswa: milik sendiri, dosen: filter ?kelas=&pertemuan=)",
+                "operationId": "3781778181ad6718c291d1e4e2ae272e",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pertemuan",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar presensi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Presensi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/presensi/{kelas}/{pertemuan}/{mahasiswaUid}": {
+            "get": {
+                "tags": [
+                    "Presensi"
+                ],
+                "summary": "Detail presensi satu mahasiswa",
+                "operationId": "4300e0f2d9f7f489155674b6316a6773",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pertemuan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail presensi"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Presensi"
+                ],
+                "summary": "Input/ubah presensi (upsert, hanya dosen)",
+                "operationId": "ffae1dab2ca30c59e9a1f573a377a644",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pertemuan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "keterangan"
+                                ],
+                                "properties": {
+                                    "nim": {
+                                        "type": "string"
+                                    },
+                                    "nama": {
+                                        "type": "string"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Hadir",
+                                            "Izin",
+                                            "Sakit",
+                                            "Alpha"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presensi berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Presensi"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Bukan role dosen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Presensi"
+                ],
+                "summary": "Hapus presensi (dosen)",
+                "operationId": "4fab0b3eb2ce5ca47095feed01581d8e",
+                "parameters": [
+                    {
+                        "name": "kelas",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pertemuan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mahasiswaUid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifikasi": {
+            "get": {
+                "tags": [
+                    "Notifikasi"
+                ],
+                "summary": "Daftar notifikasi milik user yang login",
+                "operationId": "054cd709bcc483e6fd84e80bf35d65cf",
+                "responses": {
+                    "200": {
+                        "description": "Daftar notifikasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Notifikasi"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Notifikasi"
+                ],
+                "summary": "Buat notifikasi baru untuk seorang mahasiswa/dosen",
+                "operationId": "8619e11a88bda9f988678edc6287ba60",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "uid",
+                                    "tipe_user",
+                                    "judul"
+                                ],
+                                "properties": {
+                                    "uid": {
+                                        "type": "string"
+                                    },
+                                    "tipe_user": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Mahasiswa",
+                                            "Dosen"
+                                        ]
+                                    },
+                                    "judul": {
+                                        "type": "string"
+                                    },
+                                    "isi": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Notifikasi"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifikasi/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifikasi"
+                ],
+                "summary": "Tandai notifikasi sudah dibaca (pemilik saja)",
+                "operationId": "b1c4b4f65de4c5b7015f7cc95dd0b103",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil ditandai dibaca"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifikasi/{id}": {
+            "delete": {
+                "tags": [
+                    "Notifikasi"
+                ],
+                "summary": "Hapus notifikasi (pemilik saja)",
+                "operationId": "22eb2255502aa4b60aee4162f081777a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/masukan": {
+            "get": {
+                "tags": [
+                    "Masukan"
+                ],
+                "summary": "Daftar masukan milik dosen yang login",
+                "operationId": "9f12f41cfdd0fff5c17d6d87cfa0c542",
+                "responses": {
+                    "200": {
+                        "description": "Daftar masukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Masukan"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Masukan"
+                ],
+                "summary": "Kirim masukan (dosen)",
+                "operationId": "d2ecadd1e0993bc6457e0f6f348e5537",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Masukan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dikirim"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/masukan/{id}": {
+            "get": {
+                "tags": [
+                    "Masukan"
+                ],
+                "summary": "Detail masukan",
+                "operationId": "a8446cf731b712d444c3a0e76b420de1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail masukan"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Masukan"
+                ],
+                "summary": "Ubah masukan (dosen pemilik)",
+                "operationId": "3a5119b51896a02e7b8a18ff50c4ddce",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Masukan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Masukan"
+                ],
+                "summary": "Hapus masukan (dosen pemilik)",
+                "operationId": "4f2712a4f1249c78caf99fefa59966eb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tagihan": {
+            "get": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Daftar tagihan (mahasiswa: milik sendiri, dosen: filter ?uid=&status=)",
+                "operationId": "de117d7694b476de7004711dba841601",
+                "parameters": [
+                    {
+                        "name": "uid",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar tagihan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Tagihan"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Buat tagihan baru (dosen/staf)",
+                "operationId": "8ef82fb0182d001c8929122141a268f7",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Tagihan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tagihan/{id}": {
+            "get": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Detail tagihan",
+                "operationId": "7ad20708bdb5119ae62303a054912356",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail tagihan"
+                    },
+                    "404": {
+                        "description": "Tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Ubah tagihan (dosen/staf)",
+                "operationId": "20d92474d5ae642b1db78f0f4f9193b4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Tagihan"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil diubah"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Hapus tagihan (dosen/staf)",
+                "operationId": "81e6b5e7413bfbce66f4d14bb4a471ae",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tagihan/{id}/konfirmasi": {
+            "post": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Mahasiswa mengonfirmasi pembayaran (upload bukti)",
+                "operationId": "5b9321af70f1e957061098e7c5702988",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "bukti_url"
+                                ],
+                                "properties": {
+                                    "bukti_url": {
+                                        "type": "string"
+                                    },
+                                    "catatan": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status berubah ke Menunggu Konfirmasi"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tagihan/{id}/lunas": {
+            "post": {
+                "tags": [
+                    "Tagihan"
+                ],
+                "summary": "Dosen/staf menandai tagihan lunas",
+                "operationId": "7e0e0a68fa8450b7fe8d2d6af475de6a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status berubah ke Lunas"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/uploads": {
+            "post": {
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Upload file gambar dan dapatkan URL publiknya",
+                "operationId": "5ed1927a488731c41bdcbe5605129525",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "folder": {
+                                        "type": "string",
+                                        "example": "profil"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil diunggah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal (bukan gambar / lebih dari 5MB)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Absensi": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "matkul": {
+                        "type": "string",
+                        "enum": [
+                            "algoritma",
+                            "basis_data",
+                            "mobile_computing",
+                            "rekayasa_web",
+                            "sistem_operasi",
+                            "statistik"
+                        ]
+                    },
+                    "pertemuan": {
+                        "type": "string"
+                    },
+                    "tanggal": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "keterangan": {
+                        "type": "string"
+                    },
+                    "ruangan": {
+                        "type": "string"
+                    },
+                    "dosen": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Dosen": {
+                "properties": {
+                    "uid": {
+                        "type": "string"
+                    },
+                    "nama": {
+                        "type": "string"
+                    },
+                    "nip": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "photo_url": {
+                        "type": "string"
+                    },
+                    "prodi": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Informasi": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "judul": {
+                        "type": "string"
+                    },
+                    "isi": {
+                        "type": "string"
+                    },
+                    "tanggal": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "gambar_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Kegiatan": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "judul": {
+                        "type": "string"
+                    },
+                    "deskripsi": {
+                        "type": "string"
+                    },
+                    "tanggal": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "gambar_url": {
+                        "type": "string"
+                    },
+                    "lokasi": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "pemateri": {
+                        "type": "string"
+                    },
+                    "kuota": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "JadwalKuliah": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "hari": {
+                        "type": "string"
+                    },
+                    "mata_kuliah": {
+                        "type": "string"
+                    },
+                    "jam_mulai": {
+                        "type": "string"
+                    },
+                    "jam_selesai": {
+                        "type": "string"
+                    },
+                    "ruangan": {
+                        "type": "string"
+                    },
+                    "keterangan": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "JadwalMengajar": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "hari": {
+                        "type": "string"
+                    },
+                    "mata_kuliah": {
+                        "type": "string"
+                    },
+                    "jam_mulai": {
+                        "type": "string"
+                    },
+                    "jam_selesai": {
+                        "type": "string"
+                    },
+                    "ruangan": {
+                        "type": "string"
+                    },
+                    "keterangan": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "MataKuliahKrs": {
+                "properties": {
+                    "nama": {
+                        "type": "string"
+                    },
+                    "kode": {
+                        "type": "string"
+                    },
+                    "sks": {
+                        "type": "string"
+                    },
+                    "kelas": {
+                        "type": "string"
+                    },
+                    "hari": {
+                        "type": "string"
+                    },
+                    "pukul": {
+                        "type": "string"
+                    },
+                    "ruang": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Krs": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "tahun_akademik": {
+                        "type": "string"
+                    },
+                    "semester": {
+                        "type": "string"
+                    },
+                    "mata_kuliah": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MataKuliahKrs"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Khs": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "tahun_akademik": {
+                        "type": "string"
+                    },
+                    "semester": {
+                        "type": "string"
+                    },
+                    "kode": {
+                        "type": "string"
+                    },
+                    "mata_kuliah": {
+                        "type": "string"
+                    },
+                    "sks": {
+                        "type": "integer"
+                    },
+                    "kelas": {
+                        "type": "string"
+                    },
+                    "tugas": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "uts": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "uas": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            },
+            "Mahasiswa": {
+                "properties": {
+                    "uid": {
+                        "type": "string"
+                    },
+                    "nama": {
+                        "type": "string"
+                    },
+                    "nim": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "no_hp": {
+                        "type": "string"
+                    },
+                    "tanggal_lahir": {
+                        "type": "string"
+                    },
+                    "alamat": {
+                        "type": "string"
+                    },
+                    "photo_url": {
+                        "type": "string"
+                    },
+                    "kelas": {
+                        "type": "string"
+                    },
+                    "angkatan": {
+                        "type": "string"
+                    },
+                    "prodi": {
+                        "type": "string"
+                    },
+                    "dosen_pembimbing_uid": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Nilai": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "kelas": {
+                        "type": "string"
+                    },
+                    "mahasiswa_uid": {
+                        "type": "string"
+                    },
+                    "nim": {
+                        "type": "string"
+                    },
+                    "nama": {
+                        "type": "string"
+                    },
+                    "tugas": {
+                        "type": "integer"
+                    },
+                    "uts": {
+                        "type": "integer"
+                    },
+                    "uas": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Presensi": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "kelas": {
+                        "type": "string"
+                    },
+                    "pertemuan": {
+                        "type": "string"
+                    },
+                    "mahasiswa_uid": {
+                        "type": "string"
+                    },
+                    "nim": {
+                        "type": "string"
+                    },
+                    "nama": {
+                        "type": "string"
+                    },
+                    "keterangan": {
+                        "type": "string",
+                        "enum": [
+                            "Hadir",
+                            "Izin",
+                            "Sakit",
+                            "Alpha"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "Notifikasi": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "tipe_user": {
+                        "type": "string",
+                        "enum": [
+                            "Mahasiswa",
+                            "Dosen"
+                        ]
+                    },
+                    "judul": {
+                        "type": "string"
+                    },
+                    "isi": {
+                        "type": "string"
+                    },
+                    "dibaca": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "Masukan": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "kategori": {
+                        "type": "string"
+                    },
+                    "pesan": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Tagihan": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uid": {
+                        "type": "string"
+                    },
+                    "jenis": {
+                        "type": "string"
+                    },
+                    "nominal": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "Belum Dibayar",
+                            "Menunggu Konfirmasi",
+                            "Lunas"
+                        ]
+                    },
+                    "jatuh_tempo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "metode_pembayaran": {
+                        "type": "string"
+                    },
+                    "bank_tujuan": {
+                        "type": "string"
+                    },
+                    "no_rekening": {
+                        "type": "string"
+                    },
+                    "bukti_url": {
+                        "type": "string"
+                    },
+                    "catatan": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Registrasi, login, dan reset password mandiri (JWT)"
+        },
+        {
+            "name": "Absensi",
+            "description": "Absensi mandiri mahasiswa per mata kuliah"
+        },
+        {
+            "name": "Dosen",
+            "description": "Profil dosen"
+        },
+        {
+            "name": "Informasi",
+            "description": "Pengumuman/informasi umum, dibaca bersama mahasiswa & dosen"
+        },
+        {
+            "name": "Kegiatan",
+            "description": "Kegiatan kampus, dibaca bersama mahasiswa & dosen"
+        },
+        {
+            "name": "Jadwal Kuliah",
+            "description": "Jadwal kuliah milik mahasiswa"
+        },
+        {
+            "name": "Jadwal Mengajar",
+            "description": "Jadwal mengajar milik dosen"
+        },
+        {
+            "name": "KRS",
+            "description": "Kartu Rencana Studi mahasiswa (dengan daftar mata kuliah bersarang)"
+        },
+        {
+            "name": "KHS",
+            "description": "Kartu Hasil Studi mahasiswa (diisi dosen)"
+        },
+        {
+            "name": "Mahasiswa",
+            "description": "Profil mahasiswa"
+        },
+        {
+            "name": "Nilai",
+            "description": "Nilai tugas/UTS/UAS per kelas, diinput dosen"
+        },
+        {
+            "name": "Presensi",
+            "description": "Presensi per kelas & pertemuan, diinput dosen"
+        },
+        {
+            "name": "Notifikasi",
+            "description": "Notifikasi milik mahasiswa/dosen"
+        },
+        {
+            "name": "Masukan",
+            "description": "Bantuan & masukan dari dosen"
+        },
+        {
+            "name": "Tagihan",
+            "description": "Tagihan & pembayaran mahasiswa"
+        },
+        {
+            "name": "Upload",
+            "description": "Upload file generik (foto profil, bukti pembayaran, dll)"
+        }
+    ]
+}
