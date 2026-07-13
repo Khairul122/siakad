@@ -5,6 +5,8 @@ class Krs {
   final String uid;
   final String tahunAkademik;
   final String semester;
+  final String status;
+  final String? catatanDosen;
   final List<MataKuliahKrs> mataKuliah;
 
   const Krs({
@@ -12,6 +14,8 @@ class Krs {
     required this.uid,
     required this.tahunAkademik,
     required this.semester,
+    required this.status,
+    this.catatanDosen,
     required this.mataKuliah,
   });
 
@@ -21,6 +25,9 @@ class Krs {
       return total + angka;
     });
   }
+
+  bool get sudahDisetujui => status == 'disetujui';
+  bool get ditolak => status == 'ditolak';
 
   factory Krs.fromMap(String id, Map<String, dynamic> map) {
     final rawList = map['mata_kuliah'];
@@ -36,16 +43,9 @@ class Krs {
       uid: map['uid'] ?? '',
       tahunAkademik: map['tahun_akademik'] ?? '',
       semester: map['semester'] ?? '',
+      status: map['status'] ?? 'diajukan',
+      catatanDosen: map['catatan_dosen'],
       mataKuliah: daftar,
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'uid': uid,
-      'tahunAkademik': tahunAkademik,
-      'semester': semester,
-      'mataKuliah': mataKuliah.map((mk) => mk.toMap()).toList(),
-    };
   }
 }

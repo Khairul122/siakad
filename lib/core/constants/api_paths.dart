@@ -11,8 +11,12 @@ class ApiPaths {
 
   static const String jadwalKuliah = '/jadwal-kuliah';
   static const String krs = '/krs';
+  static const String krsKuota = '/krs/kuota';
+  static String krsItem(String id) => '/krs/$id';
+  static const String kelasKuliah = '/kelas-kuliah';
   static const String khs = '/khs';
-  static const String absensi = '/absensi';
+  static const String khsRingkasan = '/khs/ringkasan';
+  static const String presensi = '/presensi';
   static const String tagihan = '/tagihan';
   static String tagihanKonfirmasi(int id) => '/tagihan/$id/konfirmasi';
   static const String informasi = '/informasi';

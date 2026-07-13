@@ -1,5 +1,29 @@
 # Progres Migrasi: Firebase -> Backend Laravel (`siakad-backend`)
 
+## Update Terbaru 2: Gap SIAKAD Tersisa Diperbaiki (2026-07-12/13)
+
+Lanjutan dari update KRS/Jadwal di bawah. Audit menyeluruh menemukan 4 gap tambahan, semua sudah diperbaiki end-to-end:
+
+1. **Keamanan OTP**: `forgot-password` tidak lagi mengembalikan OTP di response (`otp_dev_only` dihapus) — OTP sekarang hanya dicatat ke log server (`Log::info`).
+2. **`nilai`/`presensi` terhubung ke `kelas_kuliah`**: kolom `kelas_kuliah_id` (FK) ditambahkan ke kedua tabel. Route API berubah dari `/nilai/{kelasString}/{uid}` jadi `/nilai/{kelasKuliahId}/{uid}` (integer, tidak perlu `Uri.encodeComponent` lagi). Endpoint baru `GET /kelas-kuliah/{id}/peserta` mengembalikan mahasiswa yang KRS-nya **disetujui** untuk kelas itu (menggantikan filter lama `GET /mahasiswa?kelas=` yang salah target kolom).
+3. **KHS otomatis**: `AkademikService::syncKhs()` dipanggil otomatis setiap `NilaiController@upsert` menyimpan nilai — KHS tidak lagi diinput manual dosen. `KhsController` API jadi read-only (`only(['index','show'])`); endpoint baru `GET /khs/ringkasan` mengembalikan IPS per semester + IPK kumulatif. `KhsController` (Flutter) diperbaiki: dulu bug mengambil tahun_akademik/semester dari record pertama tanpa filter — sekarang ada dropdown pilih semester + card IPK terpisah.
+4. **Unifikasi kehadiran**: tabel `absensi` (self-submit mahasiswa, 6 matkul hardcode) **dihapus total**. Fitur `features/absensi/` di app ini dirombak total: `Absensi` entity sekarang di-derive dari `GET /presensi` (diisi dosen, sudah auto-scope ke uid sendiri), dikelompokkan dinamis per `kelas_kuliah_id` (bukan 6 matkul tetap). 6 halaman per-matkul hardcode (`absensi_algoritma_page.dart` dkk) dan widget `AbsensiMatkulPage` yang sudah tidak dipakai dihapus.
+
+Backend juga dirapikan sisi app `dosen` (jadwal mengajar & nilai/presensi dropdown kelas paralel) — detail di `dosen/progres.md`.
+
+Verifikasi: seluruh alur diuji end-to-end via `curl` (submit KRS → approve → nilai → KHS auto-generate → khs/ringkasan; presensi dengan nested info kelas kuliah; OTP tidak bocor). `flutter analyze` bersih di kedua app.
+
+## Update Terbaru 1: Alur KRS & Jadwal Kuliah Sesuai Standar SIAKAD (2026-07-12)
+
+Fitur KRS sebelumnya read-only (viewer statis) dan Jadwal Kuliah adalah tabel independen yang bisa di-CRUD bebas oleh mahasiswa. Sekarang dirombak jadi alur SIAKAD standar:
+
+- **Backend**: tabel master baru `mata_kuliah` (kurikulum) dan `kelas_kuliah` (penawaran kelas per periode — punya dosen pengampu, jadwal, kuota). `krs` dapat kolom `status` (`diajukan/disetujui/ditolak`), `catatan_dosen`, `disetujui_oleh`, `disetujui_at`. `POST /api/krs` sekarang menerima `kelas_kuliah_ids` (bukan objek matkul bebas), divalidasi kuota SKS (tier IPS: ≥3.00→24, 2.50-2.99→21, 2.00-2.49→18, 1.50-1.99→15, <1.50→12, mahasiswa baru→21) via `AkademikService` dan validasi bentrok jadwal. Endpoint baru `GET /api/krs/kuota`, `GET /api/kelas-kuliah`, `GET /api/mata-kuliah`, `POST /api/krs/{id}/approve` & `/reject` (khusus dosen wali mahasiswa ybs). Saat KRS disetujui, `jadwal_kuliah` di-generate otomatis (mahasiswa tidak lagi bisa POST/PUT/DELETE jadwal sendiri — endpoint jadi read-only).
+- **Filament admin**: resource baru `MataKuliahResource` & `KelasKuliahResource`; `KrsResource` dapat kolom/filter status (badge warna) dan field approval; `MataKuliahRelationManager` diubah dari TextInput bebas jadi `Select` relasi ke `kelas_kuliah`.
+- **Flutter (app ini)**: entity baru `KelasKuliah`; `Krs`/`MataKuliahKrs` dapat field `status`/`catatanDosen`/`kelasKuliahId`; halaman baru `PilihMataKuliahPage` (pilih kelas, indikator total SKS vs kuota real-time, submit); `KrsPage` dapat banner status + tombol Ajukan/Ubah KRS; `JadwalKuliahPage` empty-state diperbarui menjelaskan jadwal muncul otomatis setelah KRS disetujui.
+- Sudah diverifikasi menyeluruh via `curl` terhadap backend live: submit dalam kuota (201), submit melebihi kuota (422), bentrok jadwal (422), approve oleh dosen bukan wali (403 tepat), approve oleh dosen wali (200 + `jadwal_kuliah` ter-generate), KRS terkunci setelah disetujui (422 saat coba diubah), reject (200) dan validasi catatan wajib (422). `flutter analyze` bersih di app ini dan app `dosen`.
+- **Scope**: `nilai`, `presensi`, `khs`, `absensi` sengaja tidak disentuh (di luar topik). App `dosen`: `jadwal_mengajar` juga dirombak (tabel dihapus, endpoint jadi read-only derive dari `kelas_kuliah`) supaya satu sumber kebenaran jadwal dipakai bareng mahasiswa & dosen — detail di `dosen/progres.md`.
+- **Belum diverifikasi**: UI aktual di emulator/device (pilih matkul, submit, tampilan banner status, jadwal ter-generate) — perlu uji manual oleh user.
+
 Riwayat: project ini sebelumnya sudah di-refactor ke feature-first clean architecture dengan Firebase (Firestore + Firebase Auth + Firebase Storage + FCM + Crashlytics) sebagai data layer. Sekarang seluruh data layer dipindah ke backend REST API mandiri (`D:/Flutterproject/siakad-backend`, Laravel + JWT + Swagger). **App ini sepenuhnya lepas dari Firebase** (keputusan eksplisit user, termasuk menghapus FCM & Crashlytics).
 
 ## Keputusan Migrasi

@@ -217,7 +217,7 @@ class _JadwalKuliahView extends StatelessWidget {
                   ),
                   SizedBox(height: 6),
                   Text(
-                    'Jadwal kuliah kamu akan muncul di sini setelah tersedia',
+                    'Jadwal akan muncul di sini secara otomatis setelah KRS kamu disetujui dosen wali',
                     style: TextStyle(fontSize: 13, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),

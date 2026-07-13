@@ -90,7 +90,7 @@ class _KhsView extends StatelessWidget {
       );
     }
 
-    final nilaiList = controller.khsList;
+    final nilaiList = controller.nilaiSemesterTerpilih;
 
     return RefreshIndicator(
       onRefresh: controller.refresh,
@@ -100,6 +100,55 @@ class _KhsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (controller.ipk != null)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.accent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('IPK Kumulatif',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  Text(controller.ipk!.toStringAsFixed(2),
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                ],
+              ),
+            ),
+          if (controller.daftarSemester.length > 1)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: controller.selectedKey,
+                  items: controller.daftarSemester.map((s) {
+                    final key = '${s.tahunAkademik}|${s.semester}';
+                    return DropdownMenuItem(
+                      value: key,
+                      child: Text('${s.tahunAkademik} - Semester ${s.semester}'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    final parts = value.split('|');
+                    controller.pilihSemester(parts[0], parts[1]);
+                  },
+                ),
+              ),
+            ),
           Container(
             decoration: BoxDecoration(
               color: Colors.white,

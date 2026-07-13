@@ -6,16 +6,9 @@ import 'package:sistem_akademik/features/absensi/domain/absensi_repository.dart'
 class ApiAbsensiRepository implements AbsensiRepository {
   @override
   Future<List<Absensi>> fetchAllAbsensi() async {
-    final data = await ApiClient.instance.get(ApiPaths.absensi);
-    final list = (data as List)
-        .map((item) => Absensi.fromMap('${item['id']}', item as Map<String, dynamic>))
+    final data = await ApiClient.instance.get(ApiPaths.presensi);
+    return (data as List? ?? [])
+        .map((item) => Absensi.fromMap(Map<String, dynamic>.from(item as Map)))
         .toList();
-    return list;
-  }
-
-  @override
-  Future<List<Absensi>> fetchAbsensiByMatkul(String matkul) async {
-    final all = await fetchAllAbsensi();
-    return all.where((a) => a.matkul == matkul).toList();
   }
 }

@@ -1,4 +1,5 @@
 class MataKuliahKrs {
+  final int? kelasKuliahId;
   final String nama;
   final String kode;
   final String sks;
@@ -9,6 +10,7 @@ class MataKuliahKrs {
   final String status;
 
   const MataKuliahKrs({
+    this.kelasKuliahId,
     required this.nama,
     required this.kode,
     required this.sks,
@@ -21,6 +23,9 @@ class MataKuliahKrs {
 
   factory MataKuliahKrs.fromMap(Map<String, dynamic> map) {
     return MataKuliahKrs(
+      kelasKuliahId: map['kelas_kuliah_id'] is int
+          ? map['kelas_kuliah_id'] as int
+          : int.tryParse('${map['kelas_kuliah_id']}'),
       nama: map['nama'] ?? '',
       kode: map['kode'] ?? '',
       sks: map['sks']?.toString() ?? '',
@@ -30,18 +35,5 @@ class MataKuliahKrs {
       ruang: map['ruang'] ?? '',
       status: map['status'] ?? '',
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'nama': nama,
-      'kode': kode,
-      'sks': sks,
-      'kelas': kelas,
-      'hari': hari,
-      'pukul': pukul,
-      'ruang': ruang,
-      'status': status,
-    };
   }
 }

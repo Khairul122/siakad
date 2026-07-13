@@ -1,5 +1,5 @@
 class ApiConfig {
   ApiConfig._();
 
-  static const String baseUrl = 'http://192.168.18.127:8000/api';
+  static const String baseUrl = 'https://xbncmdd6jn.localto.net/api';
 }
