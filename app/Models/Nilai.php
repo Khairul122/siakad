@@ -12,6 +12,7 @@ class Nilai extends Model
 
     protected $fillable = [
         'kelas',
+        'kelas_kuliah_id',
         'mahasiswa_uid',
         'nim',
         'nama',
@@ -23,6 +24,11 @@ class Nilai extends Model
     public function mahasiswa(): BelongsTo
     {
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_uid', 'uid');
+    }
+
+    public function kelasKuliah(): BelongsTo
+    {
+        return $this->belongsTo(KelasKuliah::class, 'kelas_kuliah_id', 'id');
     }
 
     public function getNilaiAkhirAttribute(): float

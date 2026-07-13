@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\JadwalKuliah;
+use App\Models\KelasKuliah;
 use App\Models\Krs;
+use App\Services\AkademikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,14 +14,42 @@ use Illuminate\Support\Facades\Validator;
 
 class KrsController extends Controller
 {
+    public function __construct(private AkademikService $akademikService)
+    {
+    }
+
+    public function kuota(Request $request): JsonResponse
+    {
+        if ($request->attributes->get('auth_role') !== 'mahasiswa') {
+            return response()->json(['message' => 'Hanya mahasiswa yang punya kuota SKS'], 403);
+        }
+
+        $uid = $request->attributes->get('auth_user')->uid;
+        $ips = $this->akademikService->hitungIps($uid);
+
+        return response()->json([
+            'ips' => $ips,
+            'max_sks' => $this->akademikService->maxSks($ips),
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
-        $query = Krs::with('mataKuliah');
+        $query = Krs::with('mahasiswa', 'mataKuliah.kelasKuliah.mataKuliah', 'mataKuliah.kelasKuliah.dosen');
 
         if ($request->attributes->get('auth_role') === 'mahasiswa') {
             $query->where('uid', $request->attributes->get('auth_user')->uid);
-        } elseif ($request->filled('uid')) {
-            $query->where('uid', $request->input('uid'));
+        } elseif ($request->attributes->get('auth_role') === 'dosen') {
+            $dosenUid = $request->attributes->get('auth_user')->uid;
+            $query->whereHas('mahasiswa', fn ($q) => $q->where('dosen_pembimbing_uid', $dosenUid));
+
+            if ($request->filled('uid')) {
+                $query->where('uid', $request->input('uid'));
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
         }
 
         return response()->json($query->get());
@@ -26,7 +57,7 @@ class KrsController extends Controller
 
     public function show(Request $request, int $id): JsonResponse
     {
-        $krs = Krs::with('mataKuliah')->find($id);
+        $krs = Krs::with('mahasiswa', 'mataKuliah.kelasKuliah.mataKuliah', 'mataKuliah.kelasKuliah.dosen')->find($id);
 
         if (!$krs || !$this->canAccess($request, $krs)) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
@@ -41,18 +72,13 @@ class KrsController extends Controller
             return response()->json(['message' => 'Hanya mahasiswa yang bisa membuat KRS'], 403);
         }
 
+        $uid = $request->attributes->get('auth_user')->uid;
+
         $validator = Validator::make($request->all(), [
             'tahun_akademik' => ['required', 'string', 'max:20'],
             'semester' => ['required', 'string', 'max:20'],
-            'mata_kuliah' => ['required', 'array', 'min:1'],
-            'mata_kuliah.*.nama' => ['required', 'string'],
-            'mata_kuliah.*.kode' => ['nullable', 'string'],
-            'mata_kuliah.*.sks' => ['nullable', 'string'],
-            'mata_kuliah.*.kelas' => ['nullable', 'string'],
-            'mata_kuliah.*.hari' => ['nullable', 'string'],
-            'mata_kuliah.*.pukul' => ['nullable', 'string'],
-            'mata_kuliah.*.ruang' => ['nullable', 'string'],
-            'mata_kuliah.*.status' => ['nullable', 'string'],
+            'kelas_kuliah_ids' => ['required', 'array', 'min:1'],
+            'kelas_kuliah_ids.*' => ['integer', 'exists:kelas_kuliah,id'],
         ]);
 
         if ($validator->fails()) {
@@ -60,20 +86,46 @@ class KrsController extends Controller
         }
 
         $data = $validator->validated();
-        $uid = $request->attributes->get('auth_user')->uid;
 
-        $krs = DB::transaction(function () use ($data, $uid) {
-            $krs = Krs::create([
-                'uid' => $uid,
-                'tahun_akademik' => $data['tahun_akademik'],
-                'semester' => $data['semester'],
-            ]);
+        $existing = Krs::where('uid', $uid)
+            ->where('tahun_akademik', $data['tahun_akademik'])
+            ->where('semester', $data['semester'])
+            ->first();
 
-            foreach ($data['mata_kuliah'] as $mk) {
-                $krs->mataKuliah()->create($mk);
+        if ($existing && $existing->status === 'disetujui') {
+            return response()->json(['message' => 'KRS sudah disetujui, tidak bisa diajukan ulang'], 422);
+        }
+
+        $kelasList = KelasKuliah::with('mataKuliah')->whereIn('id', $data['kelas_kuliah_ids'])->get();
+
+        if ($error = $this->validasiPengajuan($uid, $data['tahun_akademik'], $data['semester'], $kelasList)) {
+            return $error;
+        }
+
+        $krs = DB::transaction(function () use ($existing, $uid, $data, $kelasList) {
+            if ($existing) {
+                $existing->mataKuliah()->delete();
+                $existing->update([
+                    'status' => 'diajukan',
+                    'catatan_dosen' => null,
+                    'disetujui_oleh' => null,
+                    'disetujui_at' => null,
+                ]);
+                $krs = $existing;
+            } else {
+                $krs = Krs::create([
+                    'uid' => $uid,
+                    'tahun_akademik' => $data['tahun_akademik'],
+                    'semester' => $data['semester'],
+                    'status' => 'diajukan',
+                ]);
             }
 
-            return $krs->load('mataKuliah');
+            foreach ($kelasList as $kelas) {
+                $krs->mataKuliah()->create($this->snapshot($kelas));
+            }
+
+            return $krs->load('mataKuliah.kelasKuliah.mataKuliah', 'mataKuliah.kelasKuliah.dosen');
         });
 
         return response()->json($krs, 201);
@@ -87,11 +139,17 @@ class KrsController extends Controller
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 
+        if ($request->attributes->get('auth_role') !== 'mahasiswa') {
+            return response()->json(['message' => 'Hanya mahasiswa pemilik KRS yang bisa mengubah'], 403);
+        }
+
+        if ($krs->status === 'disetujui') {
+            return response()->json(['message' => 'KRS sudah disetujui, tidak bisa diubah'], 422);
+        }
+
         $validator = Validator::make($request->all(), [
-            'tahun_akademik' => ['sometimes', 'string', 'max:20'],
-            'semester' => ['sometimes', 'string', 'max:20'],
-            'mata_kuliah' => ['sometimes', 'array'],
-            'mata_kuliah.*.nama' => ['required_with:mata_kuliah', 'string'],
+            'kelas_kuliah_ids' => ['required', 'array', 'min:1'],
+            'kelas_kuliah_ids.*' => ['integer', 'exists:kelas_kuliah,id'],
         ]);
 
         if ($validator->fails()) {
@@ -99,19 +157,28 @@ class KrsController extends Controller
         }
 
         $data = $validator->validated();
+        $kelasList = KelasKuliah::with('mataKuliah')->whereIn('id', $data['kelas_kuliah_ids'])->get();
 
-        DB::transaction(function () use ($krs, $data) {
-            $krs->update(collect($data)->only(['tahun_akademik', 'semester'])->toArray());
+        if ($error = $this->validasiPengajuan($krs->uid, $krs->tahun_akademik, $krs->semester, $kelasList)) {
+            return $error;
+        }
 
-            if (array_key_exists('mata_kuliah', $data)) {
-                $krs->mataKuliah()->delete();
-                foreach ($data['mata_kuliah'] as $mk) {
-                    $krs->mataKuliah()->create($mk);
-                }
+        DB::transaction(function () use ($krs, $kelasList) {
+            $krs->mataKuliah()->delete();
+
+            foreach ($kelasList as $kelas) {
+                $krs->mataKuliah()->create($this->snapshot($kelas));
             }
+
+            $krs->update([
+                'status' => 'diajukan',
+                'catatan_dosen' => null,
+                'disetujui_oleh' => null,
+                'disetujui_at' => null,
+            ]);
         });
 
-        return response()->json($krs->load('mataKuliah'));
+        return response()->json($krs->load('mataKuliah.kelasKuliah.mataKuliah', 'mataKuliah.kelasKuliah.dosen'));
     }
 
     public function destroy(Request $request, int $id): JsonResponse
@@ -127,10 +194,143 @@ class KrsController extends Controller
         return response()->json(['message' => 'KRS berhasil dihapus']);
     }
 
+    public function approve(Request $request, int $id): JsonResponse
+    {
+        $krs = Krs::with('mataKuliah.kelasKuliah')->find($id);
+
+        if (!$krs) {
+            return response()->json(['message' => 'KRS tidak ditemukan'], 404);
+        }
+
+        $dosenUid = $request->attributes->get('auth_user')->uid;
+
+        if ($krs->mahasiswa->dosen_pembimbing_uid !== $dosenUid) {
+            return response()->json(['message' => 'Anda bukan dosen pembimbing mahasiswa ini'], 403);
+        }
+
+        DB::transaction(function () use ($krs, $request, $dosenUid) {
+            $krs->update([
+                'status' => 'disetujui',
+                'catatan_dosen' => $request->input('catatan'),
+                'disetujui_oleh' => $dosenUid,
+                'disetujui_at' => now(),
+            ]);
+
+            JadwalKuliah::where('uid', $krs->uid)->delete();
+
+            foreach ($krs->mataKuliah as $mk) {
+                $kelas = $mk->kelasKuliah;
+
+                if (!$kelas) {
+                    continue;
+                }
+
+                JadwalKuliah::create([
+                    'uid' => $krs->uid,
+                    'hari' => $kelas->hari,
+                    'mata_kuliah' => $mk->nama,
+                    'jam_mulai' => $kelas->jam_mulai,
+                    'jam_selesai' => $kelas->jam_selesai,
+                    'ruangan' => $kelas->ruangan,
+                    'keterangan' => '',
+                ]);
+            }
+        });
+
+        return response()->json($krs->fresh(['mataKuliah.kelasKuliah.mataKuliah']));
+    }
+
+    public function reject(Request $request, int $id): JsonResponse
+    {
+        $krs = Krs::find($id);
+
+        if (!$krs) {
+            return response()->json(['message' => 'KRS tidak ditemukan'], 404);
+        }
+
+        $dosenUid = $request->attributes->get('auth_user')->uid;
+
+        if ($krs->mahasiswa->dosen_pembimbing_uid !== $dosenUid) {
+            return response()->json(['message' => 'Anda bukan dosen pembimbing mahasiswa ini'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'catatan' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validasi gagal', 'errors' => $validator->errors()], 422);
+        }
+
+        $krs->update([
+            'status' => 'ditolak',
+            'catatan_dosen' => $request->input('catatan'),
+            'disetujui_oleh' => null,
+            'disetujui_at' => null,
+        ]);
+
+        return response()->json($krs->fresh(['mataKuliah.kelasKuliah.mataKuliah']));
+    }
+
+    private function validasiPengajuan(string $uid, string $tahunAkademik, string $semester, $kelasList): ?JsonResponse
+    {
+        foreach ($kelasList as $kelas) {
+            if ($kelas->tahun_akademik !== $tahunAkademik || $kelas->semester !== $semester) {
+                return response()->json(['message' => "Kelas {$kelas->nama_kelas} tidak tersedia pada periode ini"], 422);
+            }
+        }
+
+        $totalSks = $kelasList->sum(fn (KelasKuliah $kelas) => $kelas->mataKuliah?->sks ?? 0);
+        $ips = $this->akademikService->hitungIps($uid);
+        $maxSks = $this->akademikService->maxSks($ips);
+
+        if ($totalSks > $maxSks) {
+            return response()->json([
+                'message' => "Total SKS ({$totalSks}) melebihi batas maksimum ({$maxSks} SKS berdasarkan IPS terakhir)",
+            ], 422);
+        }
+
+        for ($i = 0; $i < count($kelasList); $i++) {
+            for ($j = $i + 1; $j < count($kelasList); $j++) {
+                if ($this->bentrok($kelasList[$i], $kelasList[$j])) {
+                    return response()->json([
+                        'message' => "Jadwal kelas {$kelasList[$i]->nama_kelas} bentrok dengan {$kelasList[$j]->nama_kelas}",
+                    ], 422);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function bentrok(KelasKuliah $a, KelasKuliah $b): bool
+    {
+        if ($a->hari !== $b->hari) {
+            return false;
+        }
+
+        return $a->jam_mulai < $b->jam_selesai && $b->jam_mulai < $a->jam_selesai;
+    }
+
+    private function snapshot(KelasKuliah $kelas): array
+    {
+        return [
+            'kelas_kuliah_id' => $kelas->id,
+            'nama' => $kelas->mataKuliah?->nama ?? '',
+            'kode' => $kelas->mataKuliah?->kode ?? '',
+            'sks' => (string) ($kelas->mataKuliah?->sks ?? ''),
+            'kelas' => $kelas->nama_kelas,
+            'hari' => $kelas->hari,
+            'pukul' => "{$kelas->jam_mulai}-{$kelas->jam_selesai}",
+            'ruang' => $kelas->ruangan,
+            'status' => '',
+        ];
+    }
+
     private function canAccess(Request $request, Krs $krs): bool
     {
         if ($request->attributes->get('auth_role') === 'dosen') {
-            return true;
+            return $krs->mahasiswa?->dosen_pembimbing_uid === $request->attributes->get('auth_user')->uid;
         }
 
         return $krs->uid === $request->attributes->get('auth_user')->uid;

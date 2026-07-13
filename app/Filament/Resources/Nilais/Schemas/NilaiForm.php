@@ -43,11 +43,25 @@ class NilaiForm
                                     return $rule->where('kelas', $get('kelas'));
                                 }
                             ),
+                        Select::make('kelas_kuliah_id')
+                            ->relationship('kelasKuliah', 'nama_kelas')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->mataKuliah?->nama} - Kelas {$record->nama_kelas} ({$record->tahun_akademik} smt {$record->semester})")
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Kelas Kuliah')
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $kelas = \App\Models\KelasKuliah::with('mataKuliah')->find($state);
+                                if ($kelas) {
+                                    $set('kelas', "{$kelas->mataKuliah?->nama} - Kelas {$kelas->nama_kelas}");
+                                }
+                            }),
                         TextInput::make('kelas')
                             ->required()
-                            ->label('Kelas')
+                            ->label('Label Kelas (otomatis)')
                             ->prefixIcon('heroicon-o-rectangle-stack')
-                            ->placeholder('Contoh: TI-3A'),
+                            ->placeholder('Terisi otomatis dari Kelas Kuliah'),
                         TextInput::make('nim')
                             ->required()
                             ->label('NIM')

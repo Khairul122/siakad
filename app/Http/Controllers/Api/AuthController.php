@@ -9,6 +9,7 @@ use App\Models\OtpRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OAT;
 
@@ -160,7 +161,7 @@ class AuthController extends Controller
     #[OAT\Post(
         path: '/api/auth/forgot-password',
         tags: ['Auth'],
-        summary: 'Minta kode OTP reset password (belum terintegrasi pengiriman email nyata)',
+        summary: 'Minta kode OTP reset password (dikirim ke log server; integrasi email nyata masih TODO)',
         requestBody: new OAT\RequestBody(
             required: true,
             content: new OAT\JsonContent(
@@ -169,7 +170,7 @@ class AuthController extends Controller
             )
         ),
         responses: [
-            new OAT\Response(response: 200, description: 'OTP dibuat. Di lingkungan non-production, OTP dikembalikan langsung di response sebagai placeholder karena belum ada integrasi email.'),
+            new OAT\Response(response: 200, description: 'OTP dibuat dan dicatat ke log server. Tidak pernah dikembalikan lewat response API demi keamanan.'),
         ]
     )]
     public function forgotPassword(Request $request): JsonResponse
@@ -200,13 +201,9 @@ class AuthController extends Controller
             ]
         );
 
-        $response = ['message' => 'Kode OTP dibuat, berlaku 10 menit.'];
+        Log::info("OTP reset password untuk {$email}: {$otp}");
 
-        if (!app()->environment('production')) {
-            $response['otp_dev_only'] = $otp;
-        }
-
-        return response()->json($response);
+        return response()->json(['message' => 'Kode OTP dibuat, berlaku 10 menit. Silakan cek email Anda.']);
     }
 
     #[OAT\Post(

@@ -72,11 +72,6 @@ class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
         return $this->hasMany(Khs::class, 'uid', 'uid');
     }
 
-    public function absensi(): HasMany
-    {
-        return $this->hasMany(Absensi::class, 'uid', 'uid');
-    }
-
     public function tagihan(): HasMany
     {
         return $this->hasMany(Tagihan::class, 'uid', 'uid');

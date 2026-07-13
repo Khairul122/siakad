@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Krs\RelationManagers;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -19,42 +19,49 @@ class MataKuliahRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('nama')
-                    ->required(),
-                TextInput::make('kode')
-                    ->required(),
-                TextInput::make('sks')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                TextInput::make('kelas')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                TextInput::make('hari')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                TextInput::make('pukul')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                TextInput::make('ruang')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                TextInput::make('status')
-                    ->dehydrateStateUsing(fn ($state) => $state ?? ''),
+                Select::make('kelas_kuliah_id')
+                    ->relationship('kelasKuliah', 'nama_kelas')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->mataKuliah?->nama} - Kelas {$record->nama_kelas} ({$record->hari} {$record->jam_mulai}-{$record->jam_selesai})")
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->label('Kelas Kuliah')
+                    ->helperText('Pilih kelas yang ditawarkan — nama, kode, SKS, dan jadwal akan mengikuti data kelas ini.'),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('nama')
             ->columns([
                 TextColumn::make('nama')
+                    ->label('Mata Kuliah')
                     ->searchable(),
-                TextColumn::make('kode')
-                    ->searchable(),
+                TextColumn::make('kode'),
                 TextColumn::make('sks'),
-                TextColumn::make('kelas'),
+                TextColumn::make('kelas')
+                    ->label('Kelas'),
                 TextColumn::make('hari'),
                 TextColumn::make('pukul'),
                 TextColumn::make('ruang'),
-                TextColumn::make('status'),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $kelas = \App\Models\KelasKuliah::with('mataKuliah')->find($data['kelas_kuliah_id']);
+
+                        return array_merge($data, [
+                            'nama' => $kelas?->mataKuliah?->nama ?? '',
+                            'kode' => $kelas?->mataKuliah?->kode ?? '',
+                            'sks' => (string) ($kelas?->mataKuliah?->sks ?? ''),
+                            'kelas' => $kelas?->nama_kelas ?? '',
+                            'hari' => $kelas?->hari ?? '',
+                            'pukul' => $kelas ? "{$kelas->jam_mulai}-{$kelas->jam_selesai}" : '',
+                            'ruang' => $kelas?->ruangan ?? '',
+                            'status' => '',
+                        ]);
+                    }),
             ])
             ->recordActions([
                 EditAction::make(),

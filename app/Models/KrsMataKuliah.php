@@ -12,6 +12,7 @@ class KrsMataKuliah extends Model
 
     protected $fillable = [
         'krs_id',
+        'kelas_kuliah_id',
         'nama',
         'kode',
         'sks',
@@ -25,5 +26,10 @@ class KrsMataKuliah extends Model
     public function krs(): BelongsTo
     {
         return $this->belongsTo(Krs::class, 'krs_id', 'id');
+    }
+
+    public function kelasKuliah(): BelongsTo
+    {
+        return $this->belongsTo(KelasKuliah::class, 'kelas_kuliah_id', 'id');
     }
 }

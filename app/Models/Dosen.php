@@ -45,9 +45,9 @@ class Dosen extends Model implements AuthenticatableContract, JWTSubject
         return ['role' => 'dosen'];
     }
 
-    public function jadwalMengajar(): HasMany
+    public function kelasKuliah(): HasMany
     {
-        return $this->hasMany(JadwalMengajar::class, 'uid', 'uid');
+        return $this->hasMany(KelasKuliah::class, 'dosen_uid', 'uid');
     }
 
     public function mahasiswaBimbingan(): HasMany

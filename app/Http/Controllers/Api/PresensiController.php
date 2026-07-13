@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\KelasKuliah;
 use App\Models\Presensi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,13 +13,13 @@ class PresensiController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Presensi::query();
+        $query = Presensi::with('kelasKuliah.mataKuliah', 'kelasKuliah.dosen');
 
         if ($request->attributes->get('auth_role') === 'mahasiswa') {
             $query->where('mahasiswa_uid', $request->attributes->get('auth_user')->uid);
         } else {
-            if ($request->filled('kelas')) {
-                $query->where('kelas', $request->input('kelas'));
+            if ($request->filled('kelas_kuliah_id')) {
+                $query->where('kelas_kuliah_id', $request->input('kelas_kuliah_id'));
             }
             if ($request->filled('pertemuan')) {
                 $query->where('pertemuan', $request->input('pertemuan'));
@@ -28,13 +29,14 @@ class PresensiController extends Controller
         return response()->json($query->get());
     }
 
-    public function show(Request $request, string $kelas, string $pertemuan, string $mahasiswaUid): JsonResponse
+    public function show(Request $request, int $kelasKuliahId, string $pertemuan, string $mahasiswaUid): JsonResponse
     {
         if (!$this->canAccess($request, $mahasiswaUid)) {
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
-        $presensi = Presensi::where('kelas', $kelas)
+        $presensi = Presensi::with('kelasKuliah.mataKuliah', 'kelasKuliah.dosen')
+            ->where('kelas_kuliah_id', $kelasKuliahId)
             ->where('pertemuan', $pertemuan)
             ->where('mahasiswa_uid', $mahasiswaUid)
             ->first();
@@ -46,10 +48,16 @@ class PresensiController extends Controller
         return response()->json($presensi);
     }
 
-    public function upsert(Request $request, string $kelas, string $pertemuan, string $mahasiswaUid): JsonResponse
+    public function upsert(Request $request, int $kelasKuliahId, string $pertemuan, string $mahasiswaUid): JsonResponse
     {
         if ($request->attributes->get('auth_role') !== 'dosen') {
             return response()->json(['message' => 'Hanya dosen yang bisa menginput presensi'], 403);
+        }
+
+        $kelas = KelasKuliah::with('mataKuliah')->find($kelasKuliahId);
+
+        if (!$kelas) {
+            return response()->json(['message' => 'Kelas kuliah tidak ditemukan'], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -63,22 +71,24 @@ class PresensiController extends Controller
         }
 
         $data = $validator->validated();
+        $data['kelas'] = "{$kelas->mataKuliah?->nama} - Kelas {$kelas->nama_kelas}";
+        $data['kelas_kuliah_id'] = $kelas->id;
 
         $presensi = Presensi::updateOrCreate(
-            ['kelas' => $kelas, 'pertemuan' => $pertemuan, 'mahasiswa_uid' => $mahasiswaUid],
+            ['kelas_kuliah_id' => $kelas->id, 'pertemuan' => $pertemuan, 'mahasiswa_uid' => $mahasiswaUid],
             $data
         );
 
         return response()->json($presensi);
     }
 
-    public function destroy(Request $request, string $kelas, string $pertemuan, string $mahasiswaUid): JsonResponse
+    public function destroy(Request $request, int $kelasKuliahId, string $pertemuan, string $mahasiswaUid): JsonResponse
     {
         if ($request->attributes->get('auth_role') !== 'dosen') {
             return response()->json(['message' => 'Hanya dosen yang bisa menghapus presensi'], 403);
         }
 
-        Presensi::where('kelas', $kelas)
+        Presensi::where('kelas_kuliah_id', $kelasKuliahId)
             ->where('pertemuan', $pertemuan)
             ->where('mahasiswa_uid', $mahasiswaUid)
             ->delete();

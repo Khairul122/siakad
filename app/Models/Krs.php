@@ -15,6 +15,10 @@ class Krs extends Model
         'uid',
         'tahun_akademik',
         'semester',
+        'status',
+        'catatan_dosen',
+        'disetujui_oleh',
+        'disetujui_at',
         'created_at',
     ];
 
@@ -26,5 +30,15 @@ class Krs extends Model
     public function mataKuliah(): HasMany
     {
         return $this->hasMany(KrsMataKuliah::class, 'krs_id', 'id');
+    }
+
+    public function disetujuiOleh(): BelongsTo
+    {
+        return $this->belongsTo(Dosen::class, 'disetujui_oleh', 'uid');
+    }
+
+    public function totalSks(): int
+    {
+        return $this->mataKuliah->sum(fn (KrsMataKuliah $mk) => $mk->kelasKuliah?->mataKuliah?->sks ?? 0);
     }
 }

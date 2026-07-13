@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\JadwalMengajars\Pages;
+namespace App\Filament\Resources\KelasKuliahs\Pages;
 
-use App\Filament\Resources\JadwalMengajars\JadwalMengajarResource;
+use App\Filament\Resources\KelasKuliahs\KelasKuliahResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditJadwalMengajar extends EditRecord
+class EditKelasKuliah extends EditRecord
 {
-    protected static string $resource = JadwalMengajarResource::class;
+    protected static string $resource = KelasKuliahResource::class;
 
     public function getMaxContentWidth(): string
     {

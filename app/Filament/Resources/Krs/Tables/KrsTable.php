@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class KrsTable
@@ -24,13 +25,28 @@ class KrsTable
                 TextColumn::make('mataKuliah_count')
                     ->counts('mataKuliah')
                     ->label('Jml MK'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'disetujui' => 'success',
+                        'ditolak' => 'danger',
+                        default => 'warning',
+                    }),
+                TextColumn::make('disetujuiOleh.nama')
+                    ->label('Disetujui Oleh')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime('d F Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'diajukan' => 'Diajukan',
+                        'disetujui' => 'Disetujui',
+                        'ditolak' => 'Ditolak',
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),
