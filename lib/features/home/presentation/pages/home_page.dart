@@ -5,6 +5,7 @@ import 'package:dosen/core/widgets/dosen_bottom_nav.dart';
 import 'package:dosen/features/bimbingan/presentation/pages/bimbingan_page.dart';
 import 'package:dosen/features/informasi/presentation/pages/informasi_dosen_page.dart';
 import 'package:dosen/features/jadwal/presentation/pages/jadwal_mengajar_page.dart';
+import 'package:dosen/features/krs_approval/presentation/pages/krs_approval_list_page.dart';
 import 'package:dosen/features/nilai/presentation/pages/nilai_page.dart';
 import 'package:dosen/features/notifikasi/presentation/pages/notifikasi_page.dart';
 import 'package:dosen/features/profile/presentation/controllers/profile_controller.dart';
@@ -172,6 +173,18 @@ class _HomeView extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const BimbinganPage()),
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: _MenuItem(
+                      icon: Icons.fact_check,
+                      label: "Persetujuan\nKRS",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const KrsApprovalListPage()),
                         );
                       },
                     ),

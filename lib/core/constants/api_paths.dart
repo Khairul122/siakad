@@ -14,13 +14,19 @@ class ApiPaths {
 
   static const String jadwalMengajar = '/jadwal-mengajar';
 
+  static const String krs = '/krs';
+  static String krsApprove(int id) => '/krs/$id/approve';
+  static String krsReject(int id) => '/krs/$id/reject';
+
+  static String kelasKuliahPeserta(int id) => '/kelas-kuliah/$id/peserta';
+
   static const String nilai = '/nilai';
-  static String nilaiItem(String kelas, String mahasiswaUid) =>
-      '/nilai/${Uri.encodeComponent(kelas)}/${Uri.encodeComponent(mahasiswaUid)}';
+  static String nilaiItem(int kelasKuliahId, String mahasiswaUid) =>
+      '/nilai/$kelasKuliahId/${Uri.encodeComponent(mahasiswaUid)}';
 
   static const String presensi = '/presensi';
-  static String presensiItem(String kelas, String pertemuan, String mahasiswaUid) =>
-      '/presensi/${Uri.encodeComponent(kelas)}/${Uri.encodeComponent(pertemuan)}/${Uri.encodeComponent(mahasiswaUid)}';
+  static String presensiItem(int kelasKuliahId, String pertemuan, String mahasiswaUid) =>
+      '/presensi/$kelasKuliahId/${Uri.encodeComponent(pertemuan)}/${Uri.encodeComponent(mahasiswaUid)}';
 
   static const String informasi = '/informasi';
   static const String notifikasi = '/notifikasi';

@@ -6,35 +6,22 @@ import 'package:dosen/features/nilai/domain/nilai_repository.dart';
 
 class ApiNilaiRepository implements NilaiRepository {
   @override
-  Future<List<Nilai>> fetchNilai(String kelas) async {
-    final data = await ApiClient.instance.get(ApiPaths.nilai, query: {'kelas': kelas});
-    final list = (data as List? ?? [])
-        .map((e) => Nilai.fromMap(e as Map<String, dynamic>))
-        .toList();
-    return list;
+  Future<List<Nilai>> fetchNilai(int kelasKuliahId) async {
+    final data = await ApiClient.instance.get(ApiPaths.nilai, query: {'kelas_kuliah_id': kelasKuliahId});
+    return (data as List? ?? []).map((e) => Nilai.fromMap(e as Map<String, dynamic>)).toList();
   }
 
   @override
-  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(String kelas) async {
-    final data = await ApiClient.instance.get(ApiPaths.mahasiswa, query: {'kelas': kelas});
-    var list = (data as List? ?? [])
-        .map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>))
-        .toList();
-
-    if (list.isEmpty) {
-      final allData = await ApiClient.instance.get(ApiPaths.mahasiswa);
-      list = (allData as List? ?? [])
-          .map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>))
-          .toList();
-    }
-
+  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(int kelasKuliahId) async {
+    final data = await ApiClient.instance.get(ApiPaths.kelasKuliahPeserta(kelasKuliahId));
+    final list = (data as List? ?? []).map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>)).toList();
     list.sort((a, b) => a.nama.compareTo(b.nama));
     return list;
   }
 
   @override
   Future<void> simpanNilai({
-    required String kelas,
+    required int kelasKuliahId,
     required String uid,
     required String nim,
     required String nama,
@@ -44,7 +31,7 @@ class ApiNilaiRepository implements NilaiRepository {
   }) async {
     if (uid.isEmpty) throw Exception('UID mahasiswa kosong.');
     await ApiClient.instance.put(
-      ApiPaths.nilaiItem(kelas, uid),
+      ApiPaths.nilaiItem(kelasKuliahId, uid),
       body: {
         'nim': nim,
         'nama': nama,

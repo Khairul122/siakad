@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dosen/core/constants/app_colors.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/presensi/domain/mahasiswa_kelas.dart';
 import 'package:dosen/features/presensi/presentation/controllers/presensi_controller.dart';
 
 class PresensiDetailPage extends StatelessWidget {
-  final String kelas;
+  final JadwalMengajar kelas;
   final String pertemuan;
 
   const PresensiDetailPage({super.key, required this.kelas, required this.pertemuan});
@@ -20,7 +21,7 @@ class PresensiDetailPage extends StatelessWidget {
 }
 
 class _PresensiDetailView extends StatefulWidget {
-  final String kelas;
+  final JadwalMengajar kelas;
   final String pertemuan;
 
   const _PresensiDetailView({required this.kelas, required this.pertemuan});
@@ -50,8 +51,8 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
     _currentPertemuan = widget.pertemuan;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = context.read<PresensiController>();
-      controller.loadMahasiswa(widget.kelas);
-      controller.loadDetail(widget.kelas, _currentPertemuan);
+      controller.loadMahasiswa(widget.kelas.id);
+      controller.loadDetail(widget.kelas.id, _currentPertemuan);
     });
   }
 
@@ -96,7 +97,7 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
                   trailing: isSelected ? const Icon(Icons.check_circle, color: AppColors.primaryLight) : null,
                   onTap: () {
                     setState(() => _currentPertemuan = p);
-                    controller.gantiPertemuan(widget.kelas, p);
+                    controller.gantiPertemuan(widget.kelas.id, p);
                     Navigator.pop(ctx);
                   },
                 );
@@ -110,7 +111,7 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
   }
 
   Future<void> _saveAll(PresensiController controller) async {
-    final ok = await controller.saveAll(kelas: widget.kelas, pertemuan: _currentPertemuan);
+    final ok = await controller.saveAll(kelasKuliahId: widget.kelas.id, pertemuan: _currentPertemuan);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -146,7 +147,7 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
       body: controller.isLoadingMahasiswa
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () => controller.loadMahasiswa(widget.kelas),
+              onRefresh: () => controller.loadMahasiswa(widget.kelas.id),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
@@ -163,7 +164,7 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.kelas,
+                          widget.kelas.label,
                           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 10),
@@ -234,7 +235,7 @@ class _PresensiDetailViewState extends State<_PresensiDetailView> {
                       child: Padding(
                         padding: EdgeInsets.all(40),
                         child: Text(
-                          'Belum ada mahasiswa di kelas ini.\nPastikan field "kelas" mahasiswa sudah diisi.',
+                          'Belum ada mahasiswa di kelas ini.\nMahasiswa akan muncul setelah KRS-nya disetujui untuk kelas ini.',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: AppColors.textSecondary),
                         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:dosen/features/jadwal/data/jadwal_repository.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/jadwal/domain/jadwal_repository.dart';
 import 'package:dosen/features/presensi/data/presensi_repository.dart';
 import 'package:dosen/features/presensi/domain/mahasiswa_kelas.dart';
@@ -13,7 +14,7 @@ class PresensiController extends ChangeNotifier {
       : _repository = repository ?? ApiPresensiRepository(),
         _jadwalRepository = jadwalRepository ?? ApiJadwalRepository();
 
-  List<String> kelasList = [];
+  List<JadwalMengajar> kelasList = [];
   bool isLoading = false;
   String? errorMessage;
 
@@ -23,15 +24,7 @@ class PresensiController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final list = await _jadwalRepository.watchJadwal().first;
-      final seen = <String>{};
-      final result = <String>[];
-      for (final j in list) {
-        if (j.mataKuliah.isNotEmpty && seen.add(j.mataKuliah)) {
-          result.add(j.mataKuliah);
-        }
-      }
-      kelasList = result;
+      kelasList = await _jadwalRepository.watchJadwal().first;
     } catch (e) {
       errorMessage = 'Gagal memuat kelas: $e';
     } finally {
@@ -49,12 +42,12 @@ class PresensiController extends ChangeNotifier {
 
   String keteranganFor(String uid) => _localKet[uid] ?? 'Hadir';
 
-  Future<void> loadMahasiswa(String kelas) async {
+  Future<void> loadMahasiswa(int kelasKuliahId) async {
     isLoadingMahasiswa = true;
     notifyListeners();
 
     try {
-      mahasiswaList = await _repository.fetchMahasiswaByKelas(kelas);
+      mahasiswaList = await _repository.fetchMahasiswaByKelas(kelasKuliahId);
       for (final mhs in mahasiswaList) {
         _localKet.putIfAbsent(mhs.uid, () => 'Hadir');
       }
@@ -66,9 +59,9 @@ class PresensiController extends ChangeNotifier {
     }
   }
 
-  Future<void> loadDetail(String kelas, String pertemuan) async {
+  Future<void> loadDetail(int kelasKuliahId, String pertemuan) async {
     try {
-      final list = await _repository.fetchPresensi(kelas, pertemuan);
+      final list = await _repository.fetchPresensi(kelasKuliahId, pertemuan);
       for (final p in list) {
         _localKet[p.uid] = p.keterangan;
       }
@@ -79,9 +72,9 @@ class PresensiController extends ChangeNotifier {
     }
   }
 
-  Future<void> gantiPertemuan(String kelas, String pertemuan) async {
+  Future<void> gantiPertemuan(int kelasKuliahId, String pertemuan) async {
     _localKet.clear();
-    await loadDetail(kelas, pertemuan);
+    await loadDetail(kelasKuliahId, pertemuan);
   }
 
   void setKeterangan(String uid, String value) {
@@ -89,7 +82,7 @@ class PresensiController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> saveAll({required String kelas, required String pertemuan}) async {
+  Future<bool> saveAll({required int kelasKuliahId, required String pertemuan}) async {
     isSaving = true;
     errorMessage = null;
     notifyListeners();
@@ -99,7 +92,7 @@ class PresensiController extends ChangeNotifier {
         if (mhs.uid.isEmpty) continue;
         final ket = keteranganFor(mhs.uid);
         await _repository.simpanPresensi(
-          kelas: kelas,
+          kelasKuliahId: kelasKuliahId,
           pertemuan: pertemuan,
           uid: mhs.uid,
           nim: mhs.nim,

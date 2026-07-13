@@ -2,12 +2,12 @@ import 'package:dosen/features/nilai/domain/mahasiswa_kelas.dart';
 import 'package:dosen/features/nilai/domain/nilai.dart';
 
 abstract class NilaiRepository {
-  Future<List<Nilai>> fetchNilai(String kelas);
+  Future<List<Nilai>> fetchNilai(int kelasKuliahId);
 
-  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(String kelas);
+  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(int kelasKuliahId);
 
   Future<void> simpanNilai({
-    required String kelas,
+    required int kelasKuliahId,
     required String uid,
     required String nim,
     required String nama,

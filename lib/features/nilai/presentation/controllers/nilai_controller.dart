@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:dosen/features/jadwal/data/jadwal_repository.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/jadwal/domain/jadwal_repository.dart';
 import 'package:dosen/features/nilai/data/nilai_repository.dart';
 import 'package:dosen/features/nilai/domain/mahasiswa_kelas.dart';
@@ -14,7 +15,7 @@ class NilaiController extends ChangeNotifier {
       : _repository = repository ?? ApiNilaiRepository(),
         _jadwalRepository = jadwalRepository ?? ApiJadwalRepository();
 
-  List<String> kelasList = [];
+  List<JadwalMengajar> kelasList = [];
   bool isLoading = false;
   String? errorMessage;
 
@@ -24,15 +25,7 @@ class NilaiController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final list = await _jadwalRepository.watchJadwal().first;
-      final seen = <String>{};
-      final result = <String>[];
-      for (final j in list) {
-        if (j.mataKuliah.isNotEmpty && seen.add(j.mataKuliah)) {
-          result.add(j.mataKuliah);
-        }
-      }
-      kelasList = result;
+      kelasList = await _jadwalRepository.watchJadwal().first;
     } catch (e) {
       errorMessage = 'Gagal memuat kelas: $e';
     } finally {
@@ -47,14 +40,14 @@ class NilaiController extends ChangeNotifier {
   List<MahasiswaKelas> mahasiswaList = [];
   bool isLoadingDetail = false;
 
-  Future<void> loadDetail(String kelas) async {
+  Future<void> loadDetail(int kelasKuliahId) async {
     isLoadingDetail = true;
     errorMessage = null;
     notifyListeners();
 
     try {
-      nilaiList = await _repository.fetchNilai(kelas);
-      mahasiswaList = await _repository.fetchMahasiswaByKelas(kelas);
+      nilaiList = await _repository.fetchNilai(kelasKuliahId);
+      mahasiswaList = await _repository.fetchMahasiswaByKelas(kelasKuliahId);
     } catch (e) {
       errorMessage = 'Gagal memuat data: $e';
     } finally {
@@ -63,12 +56,12 @@ class NilaiController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshDetail(String kelas) => loadDetail(kelas);
+  Future<void> refreshDetail(int kelasKuliahId) => loadDetail(kelasKuliahId);
 
   bool isSaving = false;
 
   Future<bool> saveAll({
-    required String kelas,
+    required int kelasKuliahId,
     required List<MahasiswaKelas> mahasiswaList,
     required Map<String, Map<String, int>> nilaiInput,
   }) async {
@@ -82,7 +75,7 @@ class NilaiController extends ChangeNotifier {
         final input = nilaiInput[mhs.uid];
         if (input == null) continue;
         await _repository.simpanNilai(
-          kelas: kelas,
+          kelasKuliahId: kelasKuliahId,
           uid: mhs.uid,
           nim: mhs.nim,
           nama: mhs.nama,

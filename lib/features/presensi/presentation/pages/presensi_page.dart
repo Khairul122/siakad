@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/core/widgets/dosen_bottom_nav.dart';
 import 'package:dosen/features/home/presentation/pages/home_page.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/presensi/presentation/controllers/presensi_controller.dart';
 import 'package:dosen/features/presensi/presentation/pages/presensi_detail_page.dart';
 
@@ -99,7 +100,7 @@ class _PresensiViewState extends State<_PresensiView> {
     );
   }
 
-  Widget _kelasCard(BuildContext context, String kelas) {
+  Widget _kelasCard(BuildContext context, JadwalMengajar kelas) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
@@ -124,7 +125,7 @@ class _PresensiViewState extends State<_PresensiView> {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  kelas,
+                  kelas.label,
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
               ),

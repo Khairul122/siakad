@@ -6,38 +6,25 @@ import 'package:dosen/features/presensi/domain/presensi_repository.dart';
 
 class ApiPresensiRepository implements PresensiRepository {
   @override
-  Future<List<Presensi>> fetchPresensi(String kelas, String pertemuan) async {
+  Future<List<Presensi>> fetchPresensi(int kelasKuliahId, String pertemuan) async {
     final data = await ApiClient.instance.get(
       ApiPaths.presensi,
-      query: {'kelas': kelas, 'pertemuan': pertemuan},
+      query: {'kelas_kuliah_id': kelasKuliahId, 'pertemuan': pertemuan},
     );
-    final list = (data as List? ?? [])
-        .map((e) => Presensi.fromMap(e as Map<String, dynamic>))
-        .toList();
-    return list;
+    return (data as List? ?? []).map((e) => Presensi.fromMap(e as Map<String, dynamic>)).toList();
   }
 
   @override
-  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(String kelas) async {
-    final data = await ApiClient.instance.get(ApiPaths.mahasiswa, query: {'kelas': kelas});
-    var list = (data as List? ?? [])
-        .map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>))
-        .toList();
-
-    if (list.isEmpty) {
-      final allData = await ApiClient.instance.get(ApiPaths.mahasiswa);
-      list = (allData as List? ?? [])
-          .map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>))
-          .toList();
-    }
-
+  Future<List<MahasiswaKelas>> fetchMahasiswaByKelas(int kelasKuliahId) async {
+    final data = await ApiClient.instance.get(ApiPaths.kelasKuliahPeserta(kelasKuliahId));
+    final list = (data as List? ?? []).map((e) => MahasiswaKelas.fromMap(e as Map<String, dynamic>)).toList();
     list.sort((a, b) => a.nama.compareTo(b.nama));
     return list;
   }
 
   @override
   Future<void> simpanPresensi({
-    required String kelas,
+    required int kelasKuliahId,
     required String pertemuan,
     required String uid,
     required String nim,
@@ -46,7 +33,7 @@ class ApiPresensiRepository implements PresensiRepository {
   }) async {
     if (uid.isEmpty) throw Exception('UID mahasiswa kosong.');
     await ApiClient.instance.put(
-      ApiPaths.presensiItem(kelas, pertemuan, uid),
+      ApiPaths.presensiItem(kelasKuliahId, pertemuan, uid),
       body: {
         'nim': nim,
         'nama': nama,

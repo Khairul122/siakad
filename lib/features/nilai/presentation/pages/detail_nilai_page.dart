@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dosen/core/constants/app_colors.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/nilai/domain/mahasiswa_kelas.dart';
 import 'package:dosen/features/nilai/domain/nilai.dart';
 import 'package:dosen/features/nilai/presentation/controllers/nilai_controller.dart';
 
 class DetailNilaiPage extends StatelessWidget {
-  final String kelas;
+  final JadwalMengajar kelas;
   const DetailNilaiPage({super.key, required this.kelas});
 
   @override
@@ -19,7 +20,7 @@ class DetailNilaiPage extends StatelessWidget {
 }
 
 class _DetailNilaiView extends StatefulWidget {
-  final String kelas;
+  final JadwalMengajar kelas;
   const _DetailNilaiView({required this.kelas});
 
   @override
@@ -34,7 +35,7 @@ class _DetailNilaiViewState extends State<_DetailNilaiView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NilaiController>().loadDetail(widget.kelas);
+      context.read<NilaiController>().loadDetail(widget.kelas.id);
     });
   }
 
@@ -66,7 +67,7 @@ class _DetailNilaiViewState extends State<_DetailNilaiView> {
     }
 
     final ok = await controller.saveAll(
-      kelas: widget.kelas,
+      kelasKuliahId: widget.kelas.id,
       mahasiswaList: mahasiswaList,
       nilaiInput: input,
     );
@@ -119,7 +120,7 @@ class _DetailNilaiViewState extends State<_DetailNilaiView> {
                 child: controller.isLoadingDetail && mahasiswaList.isEmpty
                     ? const Center(child: CircularProgressIndicator())
                     : RefreshIndicator(
-                        onRefresh: () => controller.refreshDetail(widget.kelas),
+                        onRefresh: () => controller.refreshDetail(widget.kelas.id),
                         child: ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           children: [
@@ -131,7 +132,7 @@ class _DetailNilaiViewState extends State<_DetailNilaiView> {
                                 border: Border.all(color: Colors.grey.shade300),
                               ),
                               child: Text(
-                                widget.kelas,
+                                widget.kelas.label,
                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ),

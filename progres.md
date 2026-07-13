@@ -1,5 +1,23 @@
 # Progres Migrasi: Firebase -> Backend Laravel (`siakad-backend`)
 
+## Update Terbaru 2: Nilai & Presensi Pakai `kelas_kuliah_id` (2026-07-12/13)
+
+Lanjutan perbaikan gap SIAKAD (lihat `sistem_akademik/progres.md` untuk daftar lengkap 4 gap). Yang relevan untuk app ini:
+
+- **Bug lama diperbaiki**: dropdown "kelas" di fitur `nilai`/`presensi` dulu dedupe berdasarkan **nama mata kuliah saja** (dari `jadwal-mengajar`), sehingga 2 kelas paralel mata kuliah yang sama (mis. "Mobile Computing A" & "Mobile Computing B") tergabung jadi satu entri. Filter mahasiswa-per-kelas juga terbukti buggy — query `GET /mahasiswa?kelas=` membandingkan nama matkul dengan kolom `mahasiswa.kelas` (kelas akademik/angkatan, beda makna), selalu kosong, sehingga kode lama fallback diam-diam ke "load semua mahasiswa" (`nilai_repository.dart`/`presensi_repository.dart`).
+- **Perbaikan**: `JadwalMengajar` domain sekarang punya `id` (int, = `kelas_kuliah.id`) dan `namaKelas`, jadi tiap entri jadwal = 1 kelas paralel yang unik (tidak perlu dedupe manual lagi). `NilaiController`/`PresensiController` (dosen) `kelasList` sekarang `List<JadwalMengajar>` langsung dari jadwal mengajar, bukan `List<String>`. Halaman (`nilai_page.dart`, `detail_nilai_page.dart`, `presensi_page.dart`, `presensi_detail_page.dart`) menerima objek `JadwalMengajar` alih-alih `String kelas`, ditampilkan via `kelas.label` (`"Mata Kuliah - Kelas A1"`).
+- **Endpoint diganti**: `nilaiItem`/`presensiItem` di `ApiPaths` sekarang terima `int kelasKuliahId` (bukan `String kelas` + `Uri.encodeComponent`). `fetchMahasiswaByKelas` sekarang panggil `GET /kelas-kuliah/{id}/peserta` (backend baru — mahasiswa dengan KRS **disetujui** untuk kelas itu), fallback "load semua mahasiswa" yang lama **dihapus total**.
+- Sudah diverifikasi via `curl`: peserta kelas hanya muncul setelah KRS disetujui untuk kelas_kuliah yang sesuai (sebelumnya tidak ada jaminan ini sama sekali). `flutter analyze` bersih.
+
+## Update Terbaru 1: Jadwal Mengajar Derive dari `kelas_kuliah` + Persetujuan KRS (2026-07-12)
+
+Sejalan dengan perombakan alur KRS di `sistem_akademik` (lihat `sistem_akademik/progres.md`), app dosen ikut berubah:
+
+- **`jadwal_mengajar` (tabel) dihapus total** beserta model & Filament resource-nya. `JadwalMengajarController@index/show` sekarang query `KelasKuliah::where('dosen_uid', ...)` dan di-map ke shape JSON lama (`hari, mata_kuliah, jam_mulai, jam_selesai, ruangan, keterangan`) — **tidak ada perubahan kode Flutter sama sekali** di fitur `jadwal/` app ini karena kontrak response API dijaga identik. Endpoint jadi read-only (dosen tidak lagi bisa POST/PUT/DELETE jadwal manual — dikelola admin lewat `KelasKuliahResource` di Filament).
+- **Fitur baru `features/krs_approval/`**: dosen wali (dari kolom `mahasiswa.dosen_pembimbing_uid`) bisa lihat & putuskan pengajuan KRS mahasiswa bimbingannya. `GET /api/krs` otomatis di-scope backend ke mahasiswa bimbingan dosen yang login. Halaman baru `KrsApprovalListPage` (daftar pengajuan + badge status) dan `KrsApprovalDetailPage` (daftar matkul diambil, total SKS, tombol Setujui/Tolak + catatan). Entry point ditambahkan sebagai menu grid baru "Persetujuan KRS" di `home_page.dart`.
+- Sudah diverifikasi lewat `curl`: `GET /api/jadwal-mengajar` mengembalikan data yang benar diturunkan dari `kelas_kuliah`; approve KRS oleh dosen wali yang benar sukses, oleh dosen lain 403; `flutter analyze` bersih.
+- **Belum diverifikasi**: UI aktual di emulator/device untuk halaman approval baru.
+
 Riwayat: project ini sebelumnya sudah di-refactor ke feature-first clean architecture dengan Firebase (Firestore + Firebase Auth + FCM + Crashlytics + Analytics — tidak pernah pakai Firebase Storage/Google Sign-In untuk login sungguhan) sebagai data layer. Sekarang seluruh data layer dipindah ke backend REST API mandiri yang sama dengan yang dipakai `sistem_akademik` (`D:/Flutterproject/siakad-backend`, Laravel + JWT + Swagger). **App ini sepenuhnya lepas dari Firebase.**
 
 ## Keputusan Migrasi (konsisten dengan migrasi `sistem_akademik` sebelumnya)

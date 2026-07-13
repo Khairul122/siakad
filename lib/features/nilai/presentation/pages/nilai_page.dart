@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dosen/core/constants/app_colors.dart';
+import 'package:dosen/features/jadwal/domain/jadwal_mengajar.dart';
 import 'package:dosen/features/nilai/presentation/controllers/nilai_controller.dart';
 import 'package:dosen/features/nilai/presentation/pages/detail_nilai_page.dart';
 
@@ -124,7 +125,7 @@ class _NilaiViewState extends State<_NilaiView> {
     );
   }
 
-  Widget _buildNilaiCard(BuildContext context, String kelas) {
+  Widget _buildNilaiCard(BuildContext context, JadwalMengajar kelas) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -149,7 +150,7 @@ class _NilaiViewState extends State<_NilaiView> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  kelas,
+                  kelas.label,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
               ),
