@@ -36,7 +36,9 @@ class Tagihan {
       id: id,
       uid: map['uid']?.toString() ?? '',
       jenis: map['jenis'] ?? '',
-      nominal: (map['nominal'] as num?)?.toDouble() ?? 0,
+      nominal: map['nominal'] is num 
+          ? (map['nominal'] as num).toDouble() 
+          : double.tryParse('${map['nominal']}') ?? 0.0,
       status: map['status'] ?? 'Belum Dibayar',
       jatuhTempo: map['jatuh_tempo']?.toString() ?? '',
       metodePembayaran: map['metode_pembayaran']?.toString() ?? '',

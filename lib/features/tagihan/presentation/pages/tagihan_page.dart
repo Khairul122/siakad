@@ -102,9 +102,15 @@ class _TagihanView extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: GestureDetector(
                     onTap: () {
+                      final controller = context.read<TagihanController>();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => UploadBuktiPage(tagihan: t)),
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider.value(
+                            value: controller,
+                            child: UploadBuktiPage(tagihan: t),
+                          ),
+                        ),
                       );
                     },
                     child: Container(

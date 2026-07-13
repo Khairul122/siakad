@@ -33,11 +33,19 @@ class NilaiMataKuliah {
       semester: map['semester'] ?? '',
       kode: map['kode'] ?? '',
       mataKuliah: map['mata_kuliah'] ?? '',
-      sks: (map['sks'] as num?)?.toInt() ?? 0,
+      sks: map['sks'] is int 
+          ? map['sks'] as int 
+          : int.tryParse('${map['sks']}') ?? 0,
       kelas: map['kelas'] ?? '',
-      tugas: (map['tugas'] as num?)?.toDouble() ?? 0,
-      uts: (map['uts'] as num?)?.toDouble() ?? 0,
-      uas: (map['uas'] as num?)?.toDouble() ?? 0,
+      tugas: map['tugas'] is num 
+          ? (map['tugas'] as num).toDouble() 
+          : double.tryParse('${map['tugas']}') ?? 0.0,
+      uts: map['uts'] is num 
+          ? (map['uts'] as num).toDouble() 
+          : double.tryParse('${map['uts']}') ?? 0.0,
+      uas: map['uas'] is num 
+          ? (map['uas'] as num).toDouble() 
+          : double.tryParse('${map['uas']}') ?? 0.0,
     );
   }
 
