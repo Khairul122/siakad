@@ -42,12 +42,21 @@ class _VerifyCodeViewState extends State<_VerifyCodeView> {
     super.dispose();
   }
 
-  void _lanjutkan(AuthController controller) {
+  Future<void> _lanjutkan(AuthController controller) async {
     final enteredCode = _controllers.map((c) => c.text).join();
     if (!controller.isValidOtpFormat(enteredCode)) {
       _showSnackBar('Masukkan semua 4 digit kode OTP', isError: true);
       return;
     }
+
+    final valid = await controller.verifyOtp(widget.email, enteredCode);
+    if (!mounted) return;
+
+    if (!valid) {
+      _showSnackBar(controller.errorMessage ?? 'Kode OTP salah', isError: true);
+      return;
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => NewPasswordPage(email: widget.email, otp: enteredCode)),
@@ -157,8 +166,14 @@ class _VerifyCodeViewState extends State<_VerifyCodeView> {
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  onPressed: () => _lanjutkan(controller),
-                  child: const Text('Verifikasi', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  onPressed: controller.isLoading ? null : () => _lanjutkan(controller),
+                  child: controller.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text('Verifikasi', style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 16),

@@ -254,6 +254,7 @@ class _KhsView extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,

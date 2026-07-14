@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sistem_akademik/core/constants/api_config.dart';
 import 'package:sistem_akademik/core/constants/app_colors.dart';
 import 'package:sistem_akademik/features/kegiatan/domain/kegiatan.dart';
 import 'package:sistem_akademik/features/kegiatan/presentation/controllers/kegiatan_controller.dart';
-import 'package:sistem_akademik/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:sistem_akademik/features/kegiatan/presentation/controllers/pendaftaran_kegiatan_controller.dart';
+import 'package:sistem_akademik/features/profile/presentation/controllers/profile_controller.dart';
 
 const List<IconData> _kegiatanIkon = [
   Icons.laptop_mac,
@@ -128,12 +130,24 @@ class _KegiatanView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          width: 52,
+                          height: 52,
                           decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
                             color: warna.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
                           ),
-                          child: Icon(ikon, size: 28, color: warna),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: item.gambarUrl.isNotEmpty
+                                ? Image.network(
+                                    ApiConfig.resolveImageUrl(item.gambarUrl),
+                                    headers: const {'localtonet-skip-warning': 'true'},
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Icon(ikon, size: 28, color: warna),
+                                  )
+                                : Icon(ikon, size: 28, color: warna),
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -196,7 +210,7 @@ class _KegiatanView extends StatelessWidget {
   }
 }
 
-class DetailKegiatanPage extends StatelessWidget {
+class DetailKegiatanPage extends StatefulWidget {
   final Kegiatan kegiatan;
   final IconData icon;
 
@@ -207,7 +221,29 @@ class DetailKegiatanPage extends StatelessWidget {
   });
 
   @override
+  State<DetailKegiatanPage> createState() => _DetailKegiatanPageState();
+}
+
+class _DetailKegiatanPageState extends State<DetailKegiatanPage> {
+  late final PendaftaranKegiatanController _pendaftaranController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendaftaranController = PendaftaranKegiatanController(kegiatanId: widget.kegiatan.id);
+  }
+
+  @override
+  void dispose() {
+    _pendaftaranController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final kegiatan = widget.kegiatan;
+    final icon = widget.icon;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -227,8 +263,39 @@ class DetailKegiatanPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, size: 70, color: AppColors.accent),
-            const SizedBox(height: 12),
+            if (kegiatan.gambarUrl.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    ApiConfig.resolveImageUrl(kegiatan.gambarUrl),
+                    headers: const {'localtonet-skip-warning': 'true'},
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.background,
+                      alignment: Alignment.center,
+                      child: Icon(icon, size: 70, color: AppColors.accent),
+                    ),
+                  ),
+                ),
+              )
+            else ...[
+              Icon(icon, size: 70, color: AppColors.accent),
+              const SizedBox(height: 12),
+            ],
             Text(
               kegiatan.judul,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -273,11 +340,11 @@ class DetailKegiatanPage extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             if (kegiatan.status.isNotEmpty)
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kegiatan.status == 'Aktif' ? AppColors.success : AppColors.accent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: kegiatan.status == 'Aktif' ? AppColors.success : AppColors.accent,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   kegiatan.status.toUpperCase(),
@@ -315,33 +382,86 @@ class DetailKegiatanPage extends StatelessWidget {
                     const SizedBox(height: 14),
                     const Text('Kuota Peserta', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 6),
-                    Text(kegiatan.kuota, style: const TextStyle(color: Colors.grey)),
+                    Text(
+                      kegiatan.kuotaTotal != null
+                          ? '${kegiatan.pendaftaranCount} / ${kegiatan.kuotaTotal} peserta terdaftar'
+                          : '${kegiatan.pendaftaranCount} peserta terdaftar',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => FormDaftarPage(
-                      judul: kegiatan.judul,
-                      icon: icon,
+            AnimatedBuilder(
+              animation: _pendaftaranController,
+              builder: (context, _) {
+                final c = _pendaftaranController;
+
+                if (c.isChecking) {
+                  return const SizedBox(
+                    height: 48,
+                    child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+                  );
+                }
+
+                if (c.sudahTerdaftar) {
+                  return ElevatedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.check_circle, color: Colors.white),
+                    label: const Text(
+                      'Anda Sudah Terdaftar',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.success,
+                      disabledBackgroundColor: AppColors.success,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+                }
+
+                if (kegiatan.kuotaPenuh) {
+                  return ElevatedButton(
+                    onPressed: null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text(
+                      'Kuota Penuh',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                    ),
+                  );
+                }
+
+                return ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FormDaftarPage(
+                          kegiatan: kegiatan,
+                          icon: icon,
+                          controller: _pendaftaranController,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text(
+                    'Daftar Sekarang',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text(
-                'Daftar Sekarang',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
             ),
             const SizedBox(height: 20),
           ],
@@ -352,13 +472,15 @@ class DetailKegiatanPage extends StatelessWidget {
 }
 
 class FormDaftarPage extends StatefulWidget {
-  final String judul;
+  final Kegiatan kegiatan;
   final IconData icon;
+  final PendaftaranKegiatanController controller;
 
   const FormDaftarPage({
     super.key,
-    required this.judul,
+    required this.kegiatan,
     required this.icon,
+    required this.controller,
   });
 
   @override
@@ -371,6 +493,62 @@ class _FormDaftarPageState extends State<FormDaftarPage> {
   final TextEditingController nimC = TextEditingController();
   final TextEditingController prodiC = TextEditingController();
   final TextEditingController hpC = TextEditingController();
+
+  late final ProfileController _profileController;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileController = ProfileController();
+    _profileController.addListener(_prefillFromProfile);
+  }
+
+  void _prefillFromProfile() {
+    final user = _profileController.user;
+    if (user == null || !mounted) return;
+
+    setState(() {
+      if (namaC.text.isEmpty) namaC.text = user.nama;
+      if (nimC.text.isEmpty) nimC.text = user.nim;
+      if (prodiC.text.isEmpty) prodiC.text = user.prodi;
+      if (hpC.text.isEmpty) hpC.text = user.noHp;
+    });
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final berhasil = await widget.controller.daftar(
+      nama: namaC.text.trim(),
+      nim: nimC.text.trim(),
+      prodi: prodiC.text.trim(),
+      noHp: hpC.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (berhasil) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const KonfirmasiPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(widget.controller.errorMessage ?? 'Gagal mendaftar')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _profileController.removeListener(_prefillFromProfile);
+    _profileController.dispose();
+    namaC.dispose();
+    nimC.dispose();
+    prodiC.dispose();
+    hpC.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +569,7 @@ class _FormDaftarPageState extends State<FormDaftarPage> {
             children: [
               Icon(widget.icon, size: 70, color: AppColors.accent),
               const SizedBox(height: 8),
-              Text(widget.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(widget.kegiatan.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 16),
               const Text('FORM PENDAFTARAN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 24),
@@ -419,21 +597,25 @@ class _FormDaftarPageState extends State<FormDaftarPage> {
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 32),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accent,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const KonfirmasiPage()),
-                          );
-                        }
+                    AnimatedBuilder(
+                      animation: widget.controller,
+                      builder: (context, _) {
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accent,
+                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: widget.controller.isSubmitting ? null : _submit,
+                          child: widget.controller.isSubmitting
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                )
+                              : const Text('Daftar Sekarang', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        );
                       },
-                      child: const Text('Daftar Sekarang', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ],
                 ),
@@ -467,7 +649,7 @@ class KonfirmasiPage extends StatelessWidget {
               const Icon(Icons.check_circle, color: AppColors.success, size: 100),
               const SizedBox(height: 20),
               const Text(
-                'Pendaftaran anda sedang dikonfirmasi\nAnda telah diterima',
+                'Pendaftaran berhasil!\nAnda telah terdaftar sebagai peserta kegiatan ini.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey, fontSize: 15),
               ),
@@ -476,7 +658,7 @@ class KonfirmasiPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (_) => const DashboardPage()),
+                    MaterialPageRoute(builder: (_) => const KegiatanPage()),
                     (route) => false,
                   );
                 },
@@ -485,7 +667,7 @@ class KonfirmasiPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Kembali Ke Halaman Utama', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('Kembali Ke Daftar Kegiatan', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),

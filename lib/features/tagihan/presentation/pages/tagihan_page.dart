@@ -122,18 +122,21 @@ class _TagihanView extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(t.jenis, style: const TextStyle(fontWeight: FontWeight.w600)),
-                              const SizedBox(height: 4),
-                              Text(t.status,
-                                  style: TextStyle(
-                                      color: t.status == 'Belum Dibayar'
-                                          ? AppColors.error
-                                          : AppColors.warning)),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(t.jenis, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 4),
+                                Text(t.status,
+                                    style: TextStyle(
+                                        color: t.status == 'Belum Dibayar'
+                                            ? AppColors.error
+                                            : AppColors.warning)),
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 16),
                           Text(TagihanCalculator.formatRupiah(t.nominal),
                               style: const TextStyle(color: Colors.grey)),
                         ],
@@ -153,7 +156,10 @@ class _TagihanView extends StatelessWidget {
             )
           else
             ...riwayat.map((t) => _historyItem(
-                t.jenis, TagihanCalculator.formatRupiah(t.nominal), t.tanggalLunas)),
+                t.jenis,
+                TagihanCalculator.formatRupiah(t.nominal),
+                TagihanCalculator.formatTanggalIndo(t.tanggalLunas),
+            )),
           ],
         ),
       ),
@@ -528,7 +534,7 @@ class StatusPembayaranPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(
                       tagihan.tanggalKonfirmasi.isNotEmpty
-                          ? 'Dikirim pada: ${tagihan.tanggalKonfirmasi}'
+                          ? 'Dikirim pada: ${TagihanCalculator.formatTanggalIndo(tagihan.tanggalKonfirmasi)}'
                           : 'Belum ada pengiriman bukti pembayaran',
                       style: const TextStyle(color: Colors.grey)),
                   if (tagihan.buktiUrl.isNotEmpty)

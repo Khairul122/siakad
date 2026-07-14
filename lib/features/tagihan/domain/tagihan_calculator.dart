@@ -29,4 +29,32 @@ class TagihanCalculator {
     }
     return 'Rp $buffer';
   }
+
+  static String formatTanggalIndo(String rawDateTime) {
+    if (rawDateTime.isEmpty) return '-';
+    
+    final dateTime = DateTime.tryParse(rawDateTime);
+    if (dateTime == null) return rawDateTime;
+    
+    const bulanIndo = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    
+    final tanggal = dateTime.day;
+    final namaBulan = bulanIndo[dateTime.month - 1];
+    final tahun = dateTime.year;
+    
+    return '$tanggal $namaBulan $tahun';
+  }
 }

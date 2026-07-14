@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_akademik/core/constants/api_config.dart';
 import 'package:sistem_akademik/core/constants/app_colors.dart';
 import 'package:sistem_akademik/features/informasi/domain/informasi.dart';
 
@@ -47,7 +48,8 @@ class InformasiDetailPage extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: Image.network(
-                          informasi.gambarUrl,
+                          ApiConfig.resolveImageUrl(informasi.gambarUrl),
+                          headers: const {'localtonet-skip-warning': 'true'},
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) => Container(
                             height: 180,

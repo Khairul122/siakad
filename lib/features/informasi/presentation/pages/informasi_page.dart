@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sistem_akademik/core/constants/api_config.dart';
 import 'package:sistem_akademik/core/constants/app_colors.dart';
 import 'package:sistem_akademik/features/informasi/domain/informasi.dart';
 import 'package:sistem_akademik/features/informasi/presentation/controllers/informasi_controller.dart';
@@ -127,7 +128,8 @@ class _InfoCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: informasi.gambarUrl.isNotEmpty
                 ? Image.network(
-                    informasi.gambarUrl,
+                    ApiConfig.resolveImageUrl(informasi.gambarUrl),
+                    headers: const {'localtonet-skip-warning': 'true'},
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,

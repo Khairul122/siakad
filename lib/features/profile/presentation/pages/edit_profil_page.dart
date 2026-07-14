@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:sistem_akademik/core/constants/api_config.dart';
 import 'package:sistem_akademik/core/constants/app_colors.dart';
 import 'package:sistem_akademik/features/auth/domain/app_user.dart';
 import 'package:sistem_akademik/features/profile/presentation/controllers/profile_controller.dart';
@@ -115,6 +116,34 @@ class _EditProfilViewState extends State<_EditProfilView> {
     );
   }
 
+  Future<void> _selectTanggalLahir() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.tryParse(_tanggalLahirController.text) ?? DateTime(2005),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.accent,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        final monthStr = picked.month.toString().padLeft(2, '0');
+        final dayStr = picked.day.toString().padLeft(2, '0');
+        _tanggalLahirController.text = '${picked.year}-$monthStr-$dayStr';
+      });
+    }
+  }
+
   Future<void> _simpan(ProfileController controller) async {
     final success = await controller.saveProfile(
       nama: _namaController.text.trim(),
@@ -186,7 +215,12 @@ class _EditProfilViewState extends State<_EditProfilView> {
                       backgroundColor: AppColors.accent.withValues(alpha: 0.15),
                       backgroundImage: _imageFile != null
                           ? FileImage(_imageFile!) as ImageProvider
-                          : (photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null),
+                          : (photoUrl.isNotEmpty
+                              ? NetworkImage(
+                                  ApiConfig.resolveImageUrl(photoUrl),
+                                  headers: const {'localtonet-skip-warning': 'true'},
+                                )
+                              : null),
                       child: _imageFile == null && photoUrl.isEmpty
                           ? const Icon(Icons.person, size: 60, color: AppColors.accent)
                           : null,
@@ -217,7 +251,12 @@ class _EditProfilViewState extends State<_EditProfilView> {
               const SizedBox(height: 8),
               _buildTextField('Nama Lengkap', _namaController),
               _buildTextField('No HP', _noHpController, type: TextInputType.phone),
-              _buildTextField('Tanggal Lahir', _tanggalLahirController),
+              GestureDetector(
+                onTap: _selectTanggalLahir,
+                child: AbsorbPointer(
+                  child: _buildTextField('Tanggal Lahir', _tanggalLahirController),
+                ),
+              ),
               _buildTextField('Alamat', _alamatController, maxLines: 2),
               const Divider(height: 32),
               Container(

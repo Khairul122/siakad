@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sistem_akademik/app/app.dart';
+import 'package:sistem_akademik/core/constants/api_config.dart';
 import 'package:sistem_akademik/core/constants/app_colors.dart';
+import 'package:sistem_akademik/core/services/notifikasi_polling_service.dart';
 import 'package:sistem_akademik/features/absensi/presentation/pages/absensi_page.dart';
 import 'package:sistem_akademik/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:sistem_akademik/features/auth/presentation/pages/reset_password_page.dart';
@@ -52,6 +54,7 @@ class _ProfileViewState extends State<_ProfileView> {
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 try {
+                  NotifikasiPollingService.instance.stop();
                   await AuthController().logout();
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -121,7 +124,12 @@ class _ProfileViewState extends State<_ProfileView> {
                   CircleAvatar(
                     radius: 55,
                     backgroundColor: AppColors.accent.withValues(alpha: 0.15),
-                    backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) as ImageProvider : null,
+                    backgroundImage: photoUrl.isNotEmpty
+                        ? NetworkImage(
+                            ApiConfig.resolveImageUrl(photoUrl),
+                            headers: const {'localtonet-skip-warning': 'true'},
+                          )
+                        : null,
                     child: photoUrl.isEmpty
                         ? const Icon(Icons.person, size: 55, color: AppColors.accent)
                         : null,

@@ -33,10 +33,6 @@ flutter:
     - assets/images/logo_universitas.png
     - assets/images/universitas.jpg
     - assets/images/info1.jpg
-    - assets/images/profil1.jpg
-    - assets/images/info2.jpg
-    - assets/images/info3.png
-    - assets/dosen/
 
   fonts:
     - family: Righteous

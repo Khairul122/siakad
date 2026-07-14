@@ -4,6 +4,7 @@ class ApiPaths {
   static const String register = '/auth/register';
   static const String login = '/auth/login';
   static const String forgotPassword = '/auth/forgot-password';
+  static const String verifyOtp = '/auth/verify-otp';
   static const String resetPassword = '/auth/reset-password';
   static const String me = '/auth/me';
 
@@ -21,6 +22,8 @@ class ApiPaths {
   static String tagihanKonfirmasi(int id) => '/tagihan/$id/konfirmasi';
   static const String informasi = '/informasi';
   static const String kegiatan = '/kegiatan';
+  static String kegiatanDaftar(String id) => '/kegiatan/$id/daftar';
+  static String kegiatanStatusPendaftaran(String id) => '/kegiatan/$id/status-pendaftaran';
   static const String notifikasi = '/notifikasi';
   static String notifikasiRead(int id) => '/notifikasi/$id/read';
 

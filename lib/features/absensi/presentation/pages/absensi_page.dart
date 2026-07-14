@@ -392,7 +392,12 @@ class _AbsensiViewState extends State<_AbsensiView> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Pertemuan ${d.pertemuan}', style: const TextStyle(fontSize: 14)),
+                        Text(
+                          d.pertemuan.toLowerCase().startsWith('pertemuan')
+                              ? d.pertemuan.replaceFirst(RegExp('pertemuan', caseSensitive: false), 'Pertemuan')
+                              : 'Pertemuan ${d.pertemuan}',
+                          style: const TextStyle(fontSize: 14),
+                        ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration:

@@ -109,6 +109,23 @@ class AuthController extends ChangeNotifier {
 
   bool isValidOtpFormat(String code) => code.length == 4;
 
+  Future<bool> verifyOtp(String email, String otp) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _repository.verifyPasswordResetOtp(email, otp);
+      return true;
+    } on AuthException catch (e) {
+      errorMessage = e.message;
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> resetPassword({
     required String email,
     required String otp,

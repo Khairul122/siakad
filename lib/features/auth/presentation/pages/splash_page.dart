@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sistem_akademik/core/services/notifikasi_polling_service.dart';
 import 'package:sistem_akademik/core/services/session_service.dart';
 import 'package:sistem_akademik/core/widgets/logo_widget.dart';
 import 'package:sistem_akademik/features/auth/presentation/pages/login_page.dart';
@@ -27,6 +28,7 @@ class _SplashPageState extends State<SplashPage> {
     if (!mounted) return;
 
     if (SessionService.instance.isLoggedIn) {
+      NotifikasiPollingService.instance.start();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DashboardPage()),
