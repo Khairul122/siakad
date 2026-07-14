@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dosen/app/app.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
+import 'package:dosen/core/services/notifikasi_polling_service.dart';
 import 'package:dosen/core/widgets/dosen_bottom_nav.dart';
 import 'package:dosen/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:dosen/features/bantuan/presentation/pages/bantuan_masukan_page.dart';
@@ -51,6 +53,7 @@ class _ProfileViewState extends State<_ProfileView> {
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               try {
+                NotifikasiPollingService.instance.stop();
                 await AuthController().logout();
                 if (mounted) {
                   Navigator.pushAndRemoveUntil(
@@ -125,7 +128,10 @@ class _ProfileViewState extends State<_ProfileView> {
                           child: CircleAvatar(
                             radius: 55,
                             backgroundImage: photoUrl.isNotEmpty
-                                ? NetworkImage(photoUrl) as ImageProvider
+                                ? NetworkImage(
+                                    ApiConfig.resolveImageUrl(photoUrl),
+                                    headers: const {'localtonet-skip-warning': 'true'},
+                                  ) as ImageProvider
                                 : const AssetImage('assets/profil.jpg'),
                           ),
                         ),

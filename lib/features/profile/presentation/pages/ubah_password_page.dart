@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:dosen/features/profile/presentation/pages/success_save_page.dart';
@@ -60,6 +61,7 @@ class _UbahPasswordViewState extends State<_UbahPasswordView> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<ProfileController>();
+    final photoUrl = controller.dosen?.photoUrl ?? '';
 
     return Scaffold(
       backgroundColor: AppColors.primaryLight,
@@ -97,8 +99,13 @@ class _UbahPasswordViewState extends State<_UbahPasswordView> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.primary, width: 3),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/profil.jpg'),
+                        image: DecorationImage(
+                          image: photoUrl.isNotEmpty
+                              ? NetworkImage(
+                                  ApiConfig.resolveImageUrl(photoUrl),
+                                  headers: const {'localtonet-skip-warning': 'true'},
+                                ) as ImageProvider
+                              : const AssetImage('assets/profil.jpg'),
                           fit: BoxFit.cover,
                         ),
                       ),

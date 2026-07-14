@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dosen/core/services/notifikasi_polling_service.dart';
 import 'package:dosen/core/services/session_service.dart';
 import 'package:dosen/features/auth/presentation/pages/login_page.dart';
 import 'package:dosen/features/home/presentation/pages/home_page.dart';
@@ -35,6 +36,9 @@ class _AuthGateState extends State<_AuthGate> {
 
   Future<void> _load() async {
     await SessionService.instance.load();
+    if (SessionService.instance.isLoggedIn) {
+      NotifikasiPollingService.instance.start();
+    }
     if (mounted) setState(() => _loading = false);
   }
 

@@ -6,6 +6,7 @@ class MahasiswaBimbingan {
   final String photoUrl;
   final String prodi;
   final String angkatan;
+  final String noHp;
 
   const MahasiswaBimbingan({
     required this.uid,
@@ -15,6 +16,7 @@ class MahasiswaBimbingan {
     this.photoUrl = '',
     this.prodi = '',
     this.angkatan = '',
+    this.noHp = '',
   });
 
   factory MahasiswaBimbingan.fromMap(Map<String, dynamic> map) => MahasiswaBimbingan(
@@ -25,6 +27,7 @@ class MahasiswaBimbingan {
         photoUrl: map['photo_url'] ?? '',
         prodi: map['prodi'] ?? '',
         angkatan: map['angkatan']?.toString() ?? '',
+        noHp: map['no_hp'] ?? '',
       );
 
   Map<String, dynamic> toMap() => {
@@ -35,5 +38,6 @@ class MahasiswaBimbingan {
         'photo_url': photoUrl,
         'prodi': prodi,
         'angkatan': angkatan,
+        'no_hp': noHp,
       };
 }

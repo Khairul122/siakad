@@ -39,6 +39,15 @@ class ApiAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> verifyPasswordResetOtp(String email, String otp) async {
+    try {
+      await _api.post(ApiPaths.verifyOtp, body: {'email': email, 'otp': otp});
+    } on ApiException catch (e) {
+      throw AuthException(e.message);
+    }
+  }
+
+  @override
   Future<void> resetPassword({
     required String email,
     required String otp,

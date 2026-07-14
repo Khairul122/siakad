@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/informasi/domain/informasi.dart';
 import 'package:dosen/features/informasi/presentation/controllers/informasi_controller.dart';
@@ -129,7 +130,8 @@ class _InformasiDosenView extends StatelessWidget {
             ),
             child: informasi.gambarUrl.isNotEmpty
                 ? Image.network(
-                    informasi.gambarUrl,
+                    ApiConfig.resolveImageUrl(informasi.gambarUrl),
+                    headers: const {'localtonet-skip-warning': 'true'},
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,

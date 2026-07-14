@@ -21,6 +21,7 @@ class ApiClient {
     final headers = <String, String>{};
     if (json) headers['Content-Type'] = 'application/json';
     headers['Accept'] = 'application/json';
+    headers['localtonet-skip-warning'] = 'true';
     final token = SessionService.instance.token;
     if (token != null) headers['Authorization'] = 'Bearer $token';
     return headers;

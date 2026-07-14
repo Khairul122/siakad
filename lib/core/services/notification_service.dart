@@ -9,6 +9,11 @@ class NotificationService {
   static const _channelId = 'dosen_daily';
   static const _channelName = 'Notifikasi Harian Dosen';
 
+  static const _headsUpChannelId = 'dosen_headsup';
+  static const _headsUpChannelName = 'Notifikasi Masuk';
+  static const _headsUpChannelDescription =
+      'Notifikasi baru dari Sistem Akademik (KRS, nilai, presensi, tagihan, dll) yang muncul langsung sebagai heads-up.';
+
   static Future<void> init() async {
     if (_initialized) return;
 
@@ -26,23 +31,29 @@ class NotificationService {
       ),
     );
 
-    await _plugin
+    final androidPlugin = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(
-          const AndroidNotificationChannel(
-            _channelId,
-            _channelName,
-            importance: Importance.high,
-          ),
-        );
+        >();
 
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestNotificationsPermission();
+    await androidPlugin?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        _channelId,
+        _channelName,
+        importance: Importance.high,
+      ),
+    );
+
+    await androidPlugin?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        _headsUpChannelId,
+        _headsUpChannelName,
+        description: _headsUpChannelDescription,
+        importance: Importance.max,
+      ),
+    );
+
+    await androidPlugin?.requestNotificationsPermission();
 
     _initialized = true;
   }
@@ -59,14 +70,6 @@ class NotificationService {
       minute: 0,
     );
 
-    await _scheduleDaily(
-      id: 3,
-      title: '🌇 Selamat Sore!',
-      body: 'Sistem Akademik: Mahasiswa dan Dosen terhubung.',
-      hour: 15,
-      minute: 0,
-    );
-
     _showIfCurrentTime(DateTime.now());
   }
 
@@ -77,12 +80,6 @@ class NotificationService {
         id: 20,
         title: '☀️ Selamat Siang!',
         body: 'Jangan lupa input presensi dan nilai mahasiswa.',
-      );
-    } else if (h >= 15 && h < 18) {
-      _showNow(
-        id: 30,
-        title: '🌇 Selamat Sore!',
-        body: 'Sistem Akademik: Mahasiswa dan Dosen terhubung.',
       );
     }
   }
@@ -140,5 +137,36 @@ class NotificationService {
     required String body,
   }) async {
     await _plugin.show(id, title, body, _details);
+  }
+
+  static NotificationDetails get _headsUpDetails => const NotificationDetails(
+    android: AndroidNotificationDetails(
+      _headsUpChannelId,
+      _headsUpChannelName,
+      channelDescription: _headsUpChannelDescription,
+      importance: Importance.max,
+      priority: Priority.max,
+      category: AndroidNotificationCategory.message,
+      playSound: true,
+      enableVibration: true,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
+  /// Menampilkan notifikasi heads-up (langsung muncul sebagai banner di layar,
+  /// bukan cuma masuk ke tray) untuk notifikasi baru dari backend. Dipanggil
+  /// oleh [NotifikasiPollingService] saat menemukan notifikasi baru.
+  static Future<void> showHeadsUp({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    await init();
+    await _plugin.show(id, title, body, _headsUpDetails);
   }
 }

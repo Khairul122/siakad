@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/bimbingan/domain/mahasiswa_bimbingan.dart';
 
@@ -13,10 +14,13 @@ class DetailBimbinganPage extends StatelessWidget {
   });
 
   ImageProvider _resolveFoto(String foto) {
-    if (foto.startsWith('http')) {
-      return NetworkImage(foto);
+    if (foto.isNotEmpty) {
+      return NetworkImage(
+        ApiConfig.resolveImageUrl(foto),
+        headers: const {'localtonet-skip-warning': 'true'},
+      );
     }
-    return AssetImage(foto.isEmpty ? 'assets/pp.jpg' : foto);
+    return const AssetImage('assets/pp.jpg');
   }
 
   @override

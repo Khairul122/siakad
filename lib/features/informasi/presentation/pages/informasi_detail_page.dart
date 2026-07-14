@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/informasi/domain/informasi.dart';
 
@@ -57,7 +58,8 @@ class InformasiDetailPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: informasi.gambarUrl.isNotEmpty
                   ? Image.network(
-                      informasi.gambarUrl,
+                      ApiConfig.resolveImageUrl(informasi.gambarUrl),
+                      headers: const {'localtonet-skip-warning': 'true'},
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,

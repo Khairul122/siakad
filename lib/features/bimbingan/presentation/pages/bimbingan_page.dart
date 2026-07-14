@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/bimbingan/domain/mahasiswa_bimbingan.dart';
 import 'package:dosen/features/bimbingan/presentation/controllers/bimbingan_controller.dart';
@@ -134,7 +135,10 @@ class _BimbinganView extends StatelessWidget {
               CircleAvatar(
                 radius: 28,
                 backgroundImage: hasPhoto
-                    ? NetworkImage(mhs.photoUrl) as ImageProvider
+                    ? NetworkImage(
+                        ApiConfig.resolveImageUrl(mhs.photoUrl),
+                        headers: const {'localtonet-skip-warning': 'true'},
+                      ) as ImageProvider
                     : const AssetImage('assets/pp.jpg'),
               ),
               const SizedBox(width: 14),
@@ -161,7 +165,10 @@ class _BimbinganView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => DetailBimbinganPage(mahasiswa: mhs),
+                  builder: (_) => DetailBimbinganPage(
+                    mahasiswa: mhs,
+                    telepon: mhs.noHp,
+                  ),
                 ),
               );
             },
