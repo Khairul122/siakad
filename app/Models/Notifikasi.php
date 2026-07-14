@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Notifikasi extends Model
 {
     protected $table = 'notifikasi';
+
     public $timestamps = false;
 
     protected $fillable = [

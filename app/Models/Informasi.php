@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use App\Traits\HasDynamicStorageUrls;
+use Illuminate\Database\Eloquent\Model;
 
 class Informasi extends Model
 {
     use HasDynamicStorageUrls;
 
     protected $table = 'informasi';
+
     public $timestamps = false;
 
     protected $fillable = [

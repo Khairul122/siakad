@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Krs\RelationManagers;
 
+use App\Models\KelasKuliah;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -49,7 +50,7 @@ class MataKuliahRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
-                        $kelas = \App\Models\KelasKuliah::with('mataKuliah')->find($data['kelas_kuliah_id']);
+                        $kelas = KelasKuliah::with('mataKuliah')->find($data['kelas_kuliah_id']);
 
                         return array_merge($data, [
                             'nama' => $kelas?->mataKuliah?->nama ?? '',

@@ -116,6 +116,4 @@ use OpenApi\Attributes as OAT;
 #[OAT\Get(path: '/api/khs/{id}', tags: ['KHS'], summary: 'Detail KHS', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], responses: [new OAT\Response(response: 200, description: 'Detail KHS'), new OAT\Response(response: 404, description: 'Tidak ditemukan')])]
 #[OAT\Put(path: '/api/khs/{id}', tags: ['KHS'], summary: 'Ubah nilai KHS (dosen)', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], requestBody: new OAT\RequestBody(content: new OAT\JsonContent(ref: '#/components/schemas/Khs')), responses: [new OAT\Response(response: 200, description: 'Berhasil diubah')])]
 #[OAT\Delete(path: '/api/khs/{id}', tags: ['KHS'], summary: 'Hapus KHS (dosen)', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], responses: [new OAT\Response(response: 200, description: 'Berhasil dihapus')])]
-class KrsKhsDocs
-{
-}
+class KrsKhsDocs {}

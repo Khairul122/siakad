@@ -40,6 +40,4 @@ use OpenApi\Attributes as OAT;
 #[OAT\Get(path: '/api/kegiatan/{id}', tags: ['Kegiatan'], summary: 'Detail kegiatan', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], responses: [new OAT\Response(response: 200, description: 'Detail kegiatan'), new OAT\Response(response: 404, description: 'Tidak ditemukan')])]
 #[OAT\Put(path: '/api/kegiatan/{id}', tags: ['Kegiatan'], summary: 'Ubah kegiatan (dosen)', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], requestBody: new OAT\RequestBody(content: new OAT\JsonContent(ref: '#/components/schemas/Kegiatan')), responses: [new OAT\Response(response: 200, description: 'Berhasil diubah')])]
 #[OAT\Delete(path: '/api/kegiatan/{id}', tags: ['Kegiatan'], summary: 'Hapus kegiatan (dosen)', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))], responses: [new OAT\Response(response: 200, description: 'Berhasil dihapus')])]
-class InformasiKegiatanDocs
-{
-}
+class InformasiKegiatanDocs {}

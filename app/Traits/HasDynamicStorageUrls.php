@@ -9,7 +9,7 @@ trait HasDynamicStorageUrls
      */
     protected function getDynamicUrl(?string $value): ?string
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
 
@@ -27,7 +27,7 @@ trait HasDynamicStorageUrls
         }
 
         if (request()->is('api/*') || request()->is('api') || request()->expectsJson()) {
-            return url('storage/' . $relativePath);
+            return url('storage/'.$relativePath);
         }
 
         return $relativePath;
@@ -44,6 +44,7 @@ trait HasDynamicStorageUrls
                 return substr($path, strlen('/storage/'));
             }
         }
+
         return $value;
     }
 }

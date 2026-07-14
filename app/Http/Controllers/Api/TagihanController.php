@@ -31,7 +31,7 @@ class TagihanController extends Controller
     {
         $tagihan = Tagihan::find($id);
 
-        if (!$tagihan || !$this->canAccess($request, $tagihan)) {
+        if (! $tagihan || ! $this->canAccess($request, $tagihan)) {
             return response()->json(['message' => 'Tagihan tidak ditemukan'], 404);
         }
 
@@ -72,7 +72,7 @@ class TagihanController extends Controller
 
         $tagihan = Tagihan::find($id);
 
-        if (!$tagihan) {
+        if (! $tagihan) {
             return response()->json(['message' => 'Tagihan tidak ditemukan'], 404);
         }
 
@@ -99,7 +99,7 @@ class TagihanController extends Controller
     {
         $tagihan = Tagihan::find($id);
 
-        if (!$tagihan || !$this->canAccess($request, $tagihan)) {
+        if (! $tagihan || ! $this->canAccess($request, $tagihan)) {
             return response()->json(['message' => 'Tagihan tidak ditemukan'], 404);
         }
 
@@ -134,7 +134,7 @@ class TagihanController extends Controller
 
         $tagihan = Tagihan::find($id);
 
-        if (!$tagihan) {
+        if (! $tagihan) {
             return response()->json(['message' => 'Tagihan tidak ditemukan'], 404);
         }
 

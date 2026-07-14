@@ -5,21 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class JadwalKuliah extends Model
+class PendaftaranKegiatan extends Model
 {
-    protected $table = 'jadwal_kuliah';
+    protected $table = 'pendaftaran_kegiatan';
 
     public $timestamps = false;
 
     protected $fillable = [
+        'kegiatan_id',
         'uid',
-        'hari',
-        'mata_kuliah',
-        'jam_mulai',
-        'jam_selesai',
-        'ruangan',
-        'keterangan',
+        'nama',
+        'nim',
+        'prodi',
+        'no_hp',
+        'status',
     ];
+
+    public function kegiatan(): BelongsTo
+    {
+        return $this->belongsTo(Kegiatan::class, 'kegiatan_id');
+    }
 
     public function mahasiswa(): BelongsTo
     {

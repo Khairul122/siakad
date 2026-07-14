@@ -28,7 +28,7 @@ class MataKuliahController extends Controller
     {
         $mataKuliah = MataKuliah::find($id);
 
-        if (!$mataKuliah) {
+        if (! $mataKuliah) {
             return response()->json(['message' => 'Mata kuliah tidak ditemukan'], 404);
         }
 

@@ -10,10 +10,11 @@ use App\Http\Controllers\Api\KelasKuliahController;
 use App\Http\Controllers\Api\KhsController;
 use App\Http\Controllers\Api\KrsController;
 use App\Http\Controllers\Api\MahasiswaController;
-use App\Http\Controllers\Api\MataKuliahController;
 use App\Http\Controllers\Api\MasukanController;
+use App\Http\Controllers\Api\MataKuliahController;
 use App\Http\Controllers\Api\NilaiController;
 use App\Http\Controllers\Api\NotifikasiController;
+use App\Http\Controllers\Api\PendaftaranKegiatanController;
 use App\Http\Controllers\Api\PresensiController;
 use App\Http\Controllers\Api\TagihanController;
 use App\Http\Controllers\Api\UploadController;
@@ -23,6 +24,7 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
 });
 
@@ -69,6 +71,10 @@ Route::middleware('jwt.multi')->group(function () {
 
     Route::apiResource('informasi', InformasiController::class);
     Route::apiResource('kegiatan', KegiatanController::class);
+    Route::post('kegiatan/{id}/daftar', [PendaftaranKegiatanController::class, 'store']);
+    Route::get('kegiatan/{id}/status-pendaftaran', [PendaftaranKegiatanController::class, 'statusSaya']);
+    Route::get('kegiatan/{id}/peserta', [PendaftaranKegiatanController::class, 'peserta']);
+    Route::delete('pendaftaran-kegiatan/{id}', [PendaftaranKegiatanController::class, 'destroy']);
 
     Route::get('notifikasi', [NotifikasiController::class, 'index']);
     Route::post('notifikasi', [NotifikasiController::class, 'store']);

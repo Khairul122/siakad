@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Mahasiswa;
 use App\Models\OtpRequest;
+use App\Services\BrevoMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -125,7 +126,7 @@ class AuthController extends Controller
         $modelClass = $role === 'mahasiswa' ? Mahasiswa::class : Dosen::class;
         $user = $modelClass::where('email', $request->input('email'))->first();
 
-        if (!$user || !Hash::check($request->input('password'), $user->password)) {
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
@@ -161,7 +162,7 @@ class AuthController extends Controller
     #[OAT\Post(
         path: '/api/auth/forgot-password',
         tags: ['Auth'],
-        summary: 'Minta kode OTP reset password (dikirim ke log server; integrasi email nyata masih TODO)',
+        summary: 'Minta kode OTP reset password, dikirim langsung ke email pengguna',
         requestBody: new OAT\RequestBody(
             required: true,
             content: new OAT\JsonContent(
@@ -170,7 +171,7 @@ class AuthController extends Controller
             )
         ),
         responses: [
-            new OAT\Response(response: 200, description: 'OTP dibuat dan dicatat ke log server. Tidak pernah dikembalikan lewat response API demi keamanan.'),
+            new OAT\Response(response: 200, description: 'OTP dibuat dan dikirim ke email pengguna. Tidak pernah dikembalikan lewat response API demi keamanan.'),
         ]
     )]
     public function forgotPassword(Request $request): JsonResponse
@@ -186,24 +187,75 @@ class AuthController extends Controller
         $email = $request->input('email');
         $existsAsUser = Mahasiswa::where('email', $email)->exists() || Dosen::where('email', $email)->exists();
 
-        if (!$existsAsUser) {
+        if (! $existsAsUser) {
             return response()->json(['message' => 'Email tidak terdaftar'], 404);
         }
 
         $otp = (string) random_int(1000, 9999);
+        $ttlMinutes = 10;
 
         OtpRequest::updateOrCreate(
             ['email' => $email],
             [
                 'otp' => $otp,
-                'expired_at' => now()->addMinutes(10)->getTimestampMs(),
+                'expired_at' => now()->addMinutes($ttlMinutes)->getTimestampMs(),
                 'used' => false,
             ]
         );
 
         Log::info("OTP reset password untuk {$email}: {$otp}");
 
-        return response()->json(['message' => 'Kode OTP dibuat, berlaku 10 menit. Silakan cek email Anda.']);
+        try {
+            $html = view('emails.otp-reset-password', ['otp' => $otp, 'ttlMinutes' => $ttlMinutes])->render();
+            app(BrevoMailer::class)->send($email, 'Kode OTP Reset Password - SIAKAD', $html);
+        } catch (\Throwable $e) {
+            Log::error("Gagal mengirim email OTP ke {$email}: {$e->getMessage()}");
+
+            return response()->json([
+                'message' => 'Kode OTP dibuat, tetapi gagal mengirim email. Silakan coba lagi beberapa saat lagi.',
+            ], 502);
+        }
+
+        return response()->json(['message' => "Kode OTP dibuat dan dikirim ke {$email}, berlaku {$ttlMinutes} menit."]);
+    }
+
+    #[OAT\Post(
+        path: '/api/auth/verify-otp',
+        tags: ['Auth'],
+        summary: 'Cek kode OTP valid atau tidak, tanpa mengubah password (dipakai di layar verifikasi kode)',
+        requestBody: new OAT\RequestBody(
+            required: true,
+            content: new OAT\JsonContent(
+                required: ['email', 'otp'],
+                properties: [
+                    new OAT\Property(property: 'email', type: 'string', format: 'email'),
+                    new OAT\Property(property: 'otp', type: 'string'),
+                ]
+            )
+        ),
+        responses: [
+            new OAT\Response(response: 200, description: 'Kode OTP valid'),
+            new OAT\Response(response: 400, description: 'OTP salah/kadaluwarsa/sudah dipakai'),
+        ]
+    )]
+    public function verifyOtp(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email'],
+            'otp' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validasi gagal', 'errors' => $validator->errors()], 422);
+        }
+
+        $result = $this->validateOtp($request->input('email'), $request->input('otp'));
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        return response()->json(['message' => 'Kode OTP valid']);
     }
 
     #[OAT\Post(
@@ -239,28 +291,18 @@ class AuthController extends Controller
         }
 
         $email = $request->input('email');
-        $otpRequest = OtpRequest::where('email', $email)->first();
+        $result = $this->validateOtp($email, $request->input('otp'));
 
-        if (!$otpRequest) {
-            return response()->json(['message' => 'Kode OTP tidak ditemukan'], 400);
+        if ($result instanceof JsonResponse) {
+            return $result;
         }
 
-        if ($otpRequest->used) {
-            return response()->json(['message' => 'Kode OTP sudah digunakan'], 400);
-        }
-
-        if (now()->getTimestampMs() > $otpRequest->expired_at) {
-            return response()->json(['message' => 'Kode OTP sudah kadaluwarsa'], 400);
-        }
-
-        if ($otpRequest->otp !== $request->input('otp')) {
-            return response()->json(['message' => 'Kode OTP salah'], 400);
-        }
+        $otpRequest = $result;
 
         $hashed = Hash::make($request->input('password'));
         $updated = Mahasiswa::where('email', $email)->update(['password' => $hashed]);
 
-        if (!$updated) {
+        if (! $updated) {
             Dosen::where('email', $email)->update(['password' => $hashed]);
         }
 
@@ -302,12 +344,35 @@ class AuthController extends Controller
 
         $user = $request->attributes->get('auth_user');
 
-        if (!Hash::check($request->input('old_password'), $user->password)) {
+        if (! Hash::check($request->input('old_password'), $user->password)) {
             return response()->json(['message' => 'Password lama salah'], 400);
         }
 
         $user->update(['password' => Hash::make($request->input('new_password'))]);
 
         return response()->json(['message' => 'Password berhasil diperbarui']);
+    }
+
+    private function validateOtp(string $email, string $otp): OtpRequest|JsonResponse
+    {
+        $otpRequest = OtpRequest::where('email', $email)->first();
+
+        if (! $otpRequest) {
+            return response()->json(['message' => 'Kode OTP tidak ditemukan'], 400);
+        }
+
+        if ($otpRequest->used) {
+            return response()->json(['message' => 'Kode OTP sudah digunakan'], 400);
+        }
+
+        if (now()->getTimestampMs() > $otpRequest->expired_at) {
+            return response()->json(['message' => 'Kode OTP sudah kadaluwarsa'], 400);
+        }
+
+        if ($otpRequest->otp !== $otp) {
+            return response()->json(['message' => 'Kode OTP salah'], 400);
+        }
+
+        return $otpRequest;
     }
 }

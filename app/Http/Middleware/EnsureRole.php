@@ -12,7 +12,7 @@ class EnsureRole
     {
         $role = $request->attributes->get('auth_role');
 
-        if (!in_array($role, $roles, true)) {
+        if (! in_array($role, $roles, true)) {
             return response()->json(['message' => 'Akses ditolak untuk role ini'], 403);
         }
 

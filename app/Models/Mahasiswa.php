@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasDynamicStorageUrls;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
@@ -10,15 +11,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-use App\Traits\HasDynamicStorageUrls;
-
 class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
 {
-    use Authenticatable, Notifiable, HasDynamicStorageUrls;
+    use Authenticatable, HasDynamicStorageUrls, Notifiable;
 
     protected $table = 'mahasiswa';
+
     protected $primaryKey = 'uid';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

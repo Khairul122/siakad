@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Nilais\Schemas;
 
+use App\Models\KelasKuliah;
 use App\Models\Mahasiswa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -52,7 +53,7 @@ class NilaiForm
                             ->label('Kelas Kuliah')
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                $kelas = \App\Models\KelasKuliah::with('mataKuliah')->find($state);
+                                $kelas = KelasKuliah::with('mataKuliah')->find($state);
                                 if ($kelas) {
                                     $set('kelas', "{$kelas->mataKuliah?->nama} - Kelas {$kelas->nama_kelas}");
                                 }

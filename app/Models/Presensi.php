@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Presensi extends Model
 {
     protected $table = 'presensi';
+
     public $timestamps = false;
 
     protected $fillable = [

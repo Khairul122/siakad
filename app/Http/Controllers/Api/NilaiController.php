@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class NilaiController extends Controller
 {
-    public function __construct(private AkademikService $akademikService)
-    {
-    }
+    public function __construct(private AkademikService $akademikService) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -31,7 +29,7 @@ class NilaiController extends Controller
 
     public function show(Request $request, int $kelasKuliahId, string $mahasiswaUid): JsonResponse
     {
-        if (!$this->canAccess($request, $mahasiswaUid)) {
+        if (! $this->canAccess($request, $mahasiswaUid)) {
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
@@ -40,7 +38,7 @@ class NilaiController extends Controller
             ->where('mahasiswa_uid', $mahasiswaUid)
             ->first();
 
-        if (!$nilai) {
+        if (! $nilai) {
             return response()->json(['message' => 'Nilai tidak ditemukan'], 404);
         }
 
@@ -55,7 +53,7 @@ class NilaiController extends Controller
 
         $kelas = KelasKuliah::with('mataKuliah')->find($kelasKuliahId);
 
-        if (!$kelas) {
+        if (! $kelas) {
             return response()->json(['message' => 'Kelas kuliah tidak ditemukan'], 404);
         }
 

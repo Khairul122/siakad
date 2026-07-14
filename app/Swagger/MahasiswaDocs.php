@@ -71,6 +71,4 @@ use OpenApi\Attributes as OAT;
         new OAT\Response(response: 403, description: 'Bukan pemilik akun'),
     ]
 )]
-class MahasiswaDocs
-{
-}
+class MahasiswaDocs {}

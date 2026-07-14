@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Khs extends Model
 {
     protected $table = 'khs';
+
     public $timestamps = false;
 
     protected $fillable = [

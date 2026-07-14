@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class KrsController extends Controller
 {
-    public function __construct(private AkademikService $akademikService)
-    {
-    }
+    public function __construct(private AkademikService $akademikService) {}
 
     public function kuota(Request $request): JsonResponse
     {
@@ -59,7 +57,7 @@ class KrsController extends Controller
     {
         $krs = Krs::with('mahasiswa', 'mataKuliah.kelasKuliah.mataKuliah', 'mataKuliah.kelasKuliah.dosen')->find($id);
 
-        if (!$krs || !$this->canAccess($request, $krs)) {
+        if (! $krs || ! $this->canAccess($request, $krs)) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 
@@ -135,7 +133,7 @@ class KrsController extends Controller
     {
         $krs = Krs::find($id);
 
-        if (!$krs || !$this->canAccess($request, $krs)) {
+        if (! $krs || ! $this->canAccess($request, $krs)) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 
@@ -185,7 +183,7 @@ class KrsController extends Controller
     {
         $krs = Krs::find($id);
 
-        if (!$krs || !$this->canAccess($request, $krs)) {
+        if (! $krs || ! $this->canAccess($request, $krs)) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 
@@ -198,7 +196,7 @@ class KrsController extends Controller
     {
         $krs = Krs::with('mataKuliah.kelasKuliah')->find($id);
 
-        if (!$krs) {
+        if (! $krs) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 
@@ -221,7 +219,7 @@ class KrsController extends Controller
             foreach ($krs->mataKuliah as $mk) {
                 $kelas = $mk->kelasKuliah;
 
-                if (!$kelas) {
+                if (! $kelas) {
                     continue;
                 }
 
@@ -244,7 +242,7 @@ class KrsController extends Controller
     {
         $krs = Krs::find($id);
 
-        if (!$krs) {
+        if (! $krs) {
             return response()->json(['message' => 'KRS tidak ditemukan'], 404);
         }
 

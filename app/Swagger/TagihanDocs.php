@@ -49,6 +49,4 @@ use OpenApi\Attributes as OAT;
     parameters: [new OAT\Parameter(name: 'id', in: 'path', required: true, schema: new OAT\Schema(type: 'integer'))],
     responses: [new OAT\Response(response: 200, description: 'Status berubah ke Lunas')]
 )]
-class TagihanDocs
-{
-}
+class TagihanDocs {}

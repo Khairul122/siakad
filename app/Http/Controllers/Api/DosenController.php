@@ -18,7 +18,7 @@ class DosenController extends Controller
     {
         $dosen = Dosen::find($uid);
 
-        if (!$dosen) {
+        if (! $dosen) {
             return response()->json(['message' => 'Dosen tidak ditemukan'], 404);
         }
 
@@ -33,7 +33,7 @@ class DosenController extends Controller
 
         $dosen = Dosen::find($uid);
 
-        if (!$dosen) {
+        if (! $dosen) {
             return response()->json(['message' => 'Dosen tidak ditemukan'], 404);
         }
 

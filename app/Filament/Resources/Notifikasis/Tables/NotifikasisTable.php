@@ -18,6 +18,9 @@ class NotifikasisTable
             ->columns([
                 TextColumn::make('tipe_user')
                     ->badge(),
+                TextColumn::make('uid')
+                    ->label('Penerima')
+                    ->searchable(),
                 TextColumn::make('judul')
                     ->searchable(),
                 IconColumn::make('dibaca')

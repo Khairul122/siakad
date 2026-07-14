@@ -23,7 +23,7 @@ class AkademikService
     {
         $terakhir = Khs::where('uid', $uid)->orderByDesc('id')->first();
 
-        if (!$terakhir) {
+        if (! $terakhir) {
             return null;
         }
 
@@ -59,7 +59,7 @@ class AkademikService
         $kelas = KelasKuliah::with('mataKuliah')->find($kelasKuliahId);
         $nilai = Nilai::where('kelas_kuliah_id', $kelasKuliahId)->where('mahasiswa_uid', $mahasiswaUid)->first();
 
-        if (!$kelas || !$nilai || !$kelas->mataKuliah) {
+        if (! $kelas || ! $nilai || ! $kelas->mataKuliah) {
             return;
         }
 
@@ -129,10 +129,19 @@ class AkademikService
 
     private function grade(float $nilaiAkhir): string
     {
-        if ($nilaiAkhir >= 85) return 'A';
-        if ($nilaiAkhir >= 75) return 'B';
-        if ($nilaiAkhir >= 65) return 'C';
-        if ($nilaiAkhir >= 55) return 'D';
+        if ($nilaiAkhir >= 85) {
+            return 'A';
+        }
+        if ($nilaiAkhir >= 75) {
+            return 'B';
+        }
+        if ($nilaiAkhir >= 65) {
+            return 'C';
+        }
+        if ($nilaiAkhir >= 55) {
+            return 'D';
+        }
+
         return 'E';
     }
 }

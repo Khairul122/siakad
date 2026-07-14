@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class OtpRequest extends Model
 {
     protected $table = 'otp_requests';
+
     protected $primaryKey = 'email';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     public $timestamps = false;
 
     protected $fillable = [

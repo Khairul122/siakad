@@ -10,6 +10,11 @@ class EditMataKuliah extends EditRecord
 {
     protected static string $resource = MataKuliahResource::class;
 
+    public function getMaxContentWidth(): string
+    {
+        return 'full';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

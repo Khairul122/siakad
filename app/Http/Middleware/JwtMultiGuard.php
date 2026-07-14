@@ -24,6 +24,7 @@ class JwtMultiGuard
                 auth()->shouldUse($guard);
                 $request->attributes->set('auth_role', $guard);
                 $request->attributes->set('auth_user', $user);
+
                 return $next($request);
             }
         }

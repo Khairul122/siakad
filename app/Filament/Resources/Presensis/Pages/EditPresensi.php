@@ -10,6 +10,11 @@ class EditPresensi extends EditRecord
 {
     protected static string $resource = PresensiResource::class;
 
+    public function getMaxContentWidth(): string
+    {
+        return 'full';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

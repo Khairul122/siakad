@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Models\Mahasiswa;
 use App\Models\Dosen;
+use App\Models\Mahasiswa;
+use App\Models\User;
 
 return [
 

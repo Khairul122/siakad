@@ -21,7 +21,7 @@ class JadwalMengajarController extends Controller
         $uid = $request->attributes->get('auth_user')->uid;
         $item = $this->mapped($uid)->firstWhere('id', $id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 

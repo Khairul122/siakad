@@ -32,6 +32,4 @@ use OpenApi\Attributes as OAT;
         new OAT\Response(response: 422, description: 'Validasi gagal (bukan gambar / lebih dari 5MB)'),
     ]
 )]
-class UploadDocs
-{
-}
+class UploadDocs {}

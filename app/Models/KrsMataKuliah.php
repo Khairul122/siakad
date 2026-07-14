@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class KrsMataKuliah extends Model
 {
     protected $table = 'krs_mata_kuliah';
+
     public $timestamps = false;
 
     protected $fillable = [

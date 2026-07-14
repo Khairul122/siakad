@@ -31,7 +31,7 @@ class PresensiController extends Controller
 
     public function show(Request $request, int $kelasKuliahId, string $pertemuan, string $mahasiswaUid): JsonResponse
     {
-        if (!$this->canAccess($request, $mahasiswaUid)) {
+        if (! $this->canAccess($request, $mahasiswaUid)) {
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
@@ -41,7 +41,7 @@ class PresensiController extends Controller
             ->where('mahasiswa_uid', $mahasiswaUid)
             ->first();
 
-        if (!$presensi) {
+        if (! $presensi) {
             return response()->json(['message' => 'Presensi tidak ditemukan'], 404);
         }
 
@@ -56,7 +56,7 @@ class PresensiController extends Controller
 
         $kelas = KelasKuliah::with('mataKuliah')->find($kelasKuliahId);
 
-        if (!$kelas) {
+        if (! $kelas) {
             return response()->json(['message' => 'Kelas kuliah tidak ditemukan'], 404);
         }
 

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Krs extends Model
 {
     protected $table = 'krs';
+
     public $timestamps = false;
 
     protected $fillable = [

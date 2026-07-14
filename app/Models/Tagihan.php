@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasDynamicStorageUrls;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-use App\Traits\HasDynamicStorageUrls;
 
 class Tagihan extends Model
 {
     use HasDynamicStorageUrls;
 
     protected $table = 'tagihan';
+
     public $timestamps = false;
 
     protected $fillable = [

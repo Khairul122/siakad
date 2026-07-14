@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Nilai extends Model
 {
     protected $table = 'nilai';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -39,10 +40,19 @@ class Nilai extends Model
     public function getGradeAttribute(): string
     {
         $n = $this->nilai_akhir;
-        if ($n >= 85) return 'A';
-        if ($n >= 75) return 'B';
-        if ($n >= 65) return 'C';
-        if ($n >= 55) return 'D';
+        if ($n >= 85) {
+            return 'A';
+        }
+        if ($n >= 75) {
+            return 'B';
+        }
+        if ($n >= 65) {
+            return 'C';
+        }
+        if ($n >= 55) {
+            return 'D';
+        }
+
         return 'E';
     }
 }

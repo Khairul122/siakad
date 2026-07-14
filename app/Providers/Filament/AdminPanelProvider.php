@@ -12,7 +12,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+use Filament\Support\Assets\Css;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->assets([
-                \Filament\Support\Assets\Css::make('custom-stylesheet', public_path('css/custom.css')),
+                Css::make('custom-stylesheet', public_path('css/custom.css')),
             ]);
     }
 }

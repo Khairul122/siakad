@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use App\Traits\HasDynamicStorageUrls;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kegiatan extends Model
 {
     use HasDynamicStorageUrls;
 
     protected $table = 'kegiatan';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -23,6 +24,11 @@ class Kegiatan extends Model
         'pemateri',
         'kuota',
     ];
+
+    public function pendaftaran(): HasMany
+    {
+        return $this->hasMany(PendaftaranKegiatan::class, 'kegiatan_id');
+    }
 
     public function getGambarUrlAttribute($value)
     {

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Masukan extends Model
 {
     protected $table = 'masukan';
+
     public $timestamps = false;
 
     protected $fillable = [

@@ -10,15 +10,21 @@ use Illuminate\Http\Request;
 abstract class BaseCrudController extends Controller
 {
     protected string $modelClass;
+
     protected ?string $ownerColumn = null;
+
     protected array $fillable = [];
+
     protected array $writeRoles = ['mahasiswa', 'dosen'];
+
     protected bool $scopedRead = true;
+
     protected bool $dosenReadsAll = false;
 
     protected function currentUid(Request $request): ?string
     {
         $user = $request->attributes->get('auth_user');
+
         return $user?->getKey();
     }
 
@@ -33,7 +39,7 @@ abstract class BaseCrudController extends Controller
 
         $bypassOwnerFilter = $this->dosenReadsAll && $this->currentRole($request) === 'dosen';
 
-        if ($this->ownerColumn && $this->scopedRead && !$bypassOwnerFilter) {
+        if ($this->ownerColumn && $this->scopedRead && ! $bypassOwnerFilter) {
             $query->where($this->ownerColumn, $this->currentUid($request));
         }
 
@@ -42,7 +48,7 @@ abstract class BaseCrudController extends Controller
 
     protected function authorizeWrite(Request $request): ?JsonResponse
     {
-        if (!in_array($this->currentRole($request), $this->writeRoles, true)) {
+        if (! in_array($this->currentRole($request), $this->writeRoles, true)) {
             return response()->json(['message' => 'Akses ditolak untuk role ini'], 403);
         }
 
@@ -63,7 +69,7 @@ abstract class BaseCrudController extends Controller
     {
         $item = $this->findScoped($request, $id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
@@ -95,7 +101,7 @@ abstract class BaseCrudController extends Controller
 
         $item = $this->findScoped($request, $id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
@@ -112,7 +118,7 @@ abstract class BaseCrudController extends Controller
 
         $item = $this->findScoped($request, $id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 

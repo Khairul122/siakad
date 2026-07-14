@@ -49,7 +49,7 @@ class NotifikasiController extends Controller
     {
         $notifikasi = $this->findOwned($request, $id);
 
-        if (!$notifikasi) {
+        if (! $notifikasi) {
             return response()->json(['message' => 'Notifikasi tidak ditemukan'], 404);
         }
 
@@ -62,7 +62,7 @@ class NotifikasiController extends Controller
     {
         $notifikasi = $this->findOwned($request, $id);
 
-        if (!$notifikasi) {
+        if (! $notifikasi) {
             return response()->json(['message' => 'Notifikasi tidak ditemukan'], 404);
         }
 

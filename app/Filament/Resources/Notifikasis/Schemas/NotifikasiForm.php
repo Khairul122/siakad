@@ -2,11 +2,9 @@
 
 namespace App\Filament\Resources\Notifikasis\Schemas;
 
-use App\Models\Dosen;
-use App\Models\Mahasiswa;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -18,25 +16,14 @@ class NotifikasiForm
         return $schema
             ->components([
                 Section::make('Kirim Notifikasi')
-                    ->description('Buat dan kirim pesan notifikasi push ke dosen atau mahasiswa.')
+                    ->description('Kirim pengumuman langsung ke seluruh pengguna Sistem Akademik (mahasiswa) atau seluruh Dosen, tanpa perlu memilih penerima satu per satu.')
                     ->icon('heroicon-o-bell')
                     ->schema([
                         Select::make('tipe_user')
-                            ->options(['Mahasiswa' => 'Mahasiswa', 'Dosen' => 'Dosen'])
+                            ->options(['Mahasiswa' => 'Sistem Akademik (Semua Mahasiswa)', 'Dosen' => 'Dosen (Semua Dosen)'])
                             ->required()
-                            ->live()
-                            ->label('Tipe Penerima')
+                            ->label('Kirim Ke')
                             ->prefixIcon('heroicon-o-users'),
-                        Select::make('uid')
-                            ->label('Penerima Notifikasi')
-                            ->options(function (callable $get) {
-                                return $get('tipe_user') === 'Dosen'
-                                    ? Dosen::query()->pluck('nama', 'uid')
-                                    : Mahasiswa::query()->pluck('nama', 'uid');
-                            })
-                            ->searchable()
-                            ->required()
-                            ->prefixIcon('heroicon-o-user'),
                         TextInput::make('judul')
                             ->required()
                             ->label('Judul Notifikasi')

@@ -10,6 +10,11 @@ class EditTagihan extends EditRecord
 {
     protected static string $resource = TagihanResource::class;
 
+    public function getMaxContentWidth(): string
+    {
+        return 'full';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

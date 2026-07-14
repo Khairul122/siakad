@@ -10,14 +10,16 @@ use Illuminate\Http\Request;
 class KhsController extends BaseCrudController
 {
     protected string $modelClass = Khs::class;
+
     protected ?string $ownerColumn = 'uid';
+
     protected array $fillable = ['tahun_akademik', 'semester', 'kode', 'mata_kuliah', 'sks', 'kelas', 'tugas', 'uts', 'uas'];
+
     protected array $writeRoles = [];
+
     protected bool $dosenReadsAll = true;
 
-    public function __construct(private AkademikService $akademikService)
-    {
-    }
+    public function __construct(private AkademikService $akademikService) {}
 
     public function ringkasan(Request $request): JsonResponse
     {
@@ -25,7 +27,7 @@ class KhsController extends BaseCrudController
             ? $request->attributes->get('auth_user')->uid
             : $request->input('uid');
 
-        if (!$uid) {
+        if (! $uid) {
             return response()->json(['message' => 'Parameter uid wajib diisi untuk role selain mahasiswa'], 422);
         }
 

@@ -90,6 +90,4 @@ use OpenApi\Attributes as OAT;
     ]
 )]
 #[OAT\Delete(path: '/api/presensi/{kelas}/{pertemuan}/{mahasiswaUid}', tags: ['Presensi'], summary: 'Hapus presensi (dosen)', security: [['bearerAuth' => []]], parameters: [new OAT\Parameter(name: 'kelas', in: 'path', required: true, schema: new OAT\Schema(type: 'string')), new OAT\Parameter(name: 'pertemuan', in: 'path', required: true, schema: new OAT\Schema(type: 'string')), new OAT\Parameter(name: 'mahasiswaUid', in: 'path', required: true, schema: new OAT\Schema(type: 'string'))], responses: [new OAT\Response(response: 200, description: 'Berhasil dihapus')])]
-class NilaiPresensiDocs
-{
-}
+class NilaiPresensiDocs {}

@@ -30,13 +30,13 @@ class MahasiswaController extends Controller
 
     public function show(Request $request, string $uid): JsonResponse
     {
-        if (!$this->canAccess($request, $uid)) {
+        if (! $this->canAccess($request, $uid)) {
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
         $mahasiswa = Mahasiswa::find($uid);
 
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             return response()->json(['message' => 'Mahasiswa tidak ditemukan'], 404);
         }
 
@@ -51,7 +51,7 @@ class MahasiswaController extends Controller
 
         $mahasiswa = Mahasiswa::find($uid);
 
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             return response()->json(['message' => 'Mahasiswa tidak ditemukan'], 404);
         }
 
