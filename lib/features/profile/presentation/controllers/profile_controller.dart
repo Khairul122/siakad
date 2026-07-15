@@ -7,9 +7,24 @@ import 'package:dosen/features/profile/domain/profile_repository.dart';
 class ProfileController extends ChangeNotifier {
   final ProfileRepository _repository;
 
+  bool _disposed = false;
+
   ProfileController({ProfileRepository? repository})
       : _repository = repository ?? ApiProfileRepository() {
     load();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
   }
 
   Dosen? dosen;
