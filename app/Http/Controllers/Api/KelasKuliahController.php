@@ -15,11 +15,26 @@ class KelasKuliahController extends Controller
         $query = KelasKuliah::with(['mataKuliah', 'dosen'])->withCount('krsMataKuliah');
 
         if ($request->filled('tahun_akademik')) {
-            $query->where('tahun_akademik', $request->input('tahun_akademik'));
+            $tahun = trim($request->input('tahun_akademik'));
+            if ($tahun !== '') {
+                $query->where('tahun_akademik', $tahun);
+            }
         }
 
         if ($request->filled('semester')) {
-            $query->where('semester', $request->input('semester'));
+            $sem = trim($request->input('semester'));
+            if ($sem !== '') {
+                $query->where(function ($q) use ($sem) {
+                    $q->where('semester', $sem)
+                      ->orWhereHas('mataKuliah', fn ($mk) => $mk->where('semester_ke', $sem));
+
+                    if (in_array(strtolower($sem), ['1', '3', '5', '7', 'ganjil'], true)) {
+                        $q->orWhereIn('semester', ['1', '3', '5', '7', 'Ganjil', 'ganjil']);
+                    } elseif (in_array(strtolower($sem), ['2', '4', '6', '8', 'genap'], true)) {
+                        $q->orWhereIn('semester', ['2', '4', '6', '8', 'Genap', 'genap']);
+                    }
+                });
+            }
         }
 
         if ($request->filled('prodi')) {
