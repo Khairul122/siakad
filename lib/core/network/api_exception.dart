@@ -6,5 +6,13 @@ class ApiException implements Exception {
   const ApiException(this.message, {this.statusCode, this.fieldErrors});
 
   @override
-  String toString() => message;
+  String toString() {
+    if (fieldErrors != null && fieldErrors!.isNotEmpty) {
+      final details = fieldErrors!.values.expand((v) => v is List ? v : [v]).join(', ');
+      if (details.isNotEmpty) {
+        return '$message: $details';
+      }
+    }
+    return message;
+  }
 }
