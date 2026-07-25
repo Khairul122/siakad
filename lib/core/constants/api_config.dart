@@ -1,7 +1,7 @@
 class ApiConfig {
   ApiConfig._();
 
-  static const String baseUrl = 'https://xbncmdd6jn.localto.net/api';
+  static const String baseUrl = 'http://backend-siakad.synectra.xyz/api';
 
   static String resolveImageUrl(String url) {
     if (url.isEmpty) return '';
