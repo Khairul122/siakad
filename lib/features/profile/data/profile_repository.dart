@@ -42,7 +42,7 @@ class ApiProfileRepository implements ProfileRepository {
 
   @override
   Future<String> uploadProfilePhoto(String localFilePath) {
-    return _api.uploadFile(localFilePath, folder: 'profil');
+    return _api.uploadFile(localFilePath, folder: 'mahasiswa');
   }
 
   @override
