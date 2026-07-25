@@ -190,10 +190,10 @@ class _PilihMataKuliahViewState extends State<_PilihMataKuliahView> {
                           inputBelumLengkap
                               ? 'Isi Tahun Akademik & Semester'
                               : 'Tidak ada kelas ditawarkan',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Colors.black70,
+                            color: Colors.black87,
                           ),
                           textAlign: TextAlign.center,
                         ),
