@@ -1,0 +1,53 @@
+name: Deploy SIAKAD Backend (FTP Hosting)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  web-deploy:
+    name: Deploy to FTP Hosting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, gd, json, openssl, pdo, pdo_mysql, tokenizer, xml, zip
+          tools: composer:v2
+
+      - name: Prepare .env for Build
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+
+      - name: Install Composer Dependencies
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Build Swagger Documentation
+        run: |
+          php artisan l5-swagger:generate || true
+
+      - name: Sync files via FTP
+        uses: SamKirland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          security: loose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            .env
+            deploy.sh
+            phpunit.xml

@@ -1,0 +1,10 @@
+# .htaccess untuk Shared Hosting / FTP
+# Mengarahkan semua traffic dari root folder subdomain ke folder /public Laravel
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Direct Request to /public Folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
