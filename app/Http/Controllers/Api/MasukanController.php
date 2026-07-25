@@ -12,5 +12,5 @@ class MasukanController extends BaseCrudController
 
     protected array $fillable = ['kategori', 'pesan'];
 
-    protected array $writeRoles = ['dosen'];
+    protected array $writeRoles = ['mahasiswa', 'dosen'];
 }
