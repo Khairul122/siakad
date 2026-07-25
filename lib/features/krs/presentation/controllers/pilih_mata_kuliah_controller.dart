@@ -61,6 +61,13 @@ class PilihMataKuliahController extends ChangeNotifier {
 
   Future<void> cariKelas(String tahunAkademikBaru, String semesterBaru) async {
     updatePeriode(tahunAkademikBaru, semesterBaru);
+    if (tahunAkademik.trim().isEmpty || semester.trim().isEmpty) {
+      kelasList = [];
+      errorMessage = null;
+      notifyListeners();
+      return;
+    }
+
     isLoading = true;
     errorMessage = null;
     notifyListeners();

@@ -26,7 +26,9 @@ class PilihMataKuliahPage extends StatelessWidget {
           existingKrsId: existingKrsId,
           preselectedIds: preselectedIds,
         );
-        controller.cariKelas(tahunAkademikAwal, semesterAwal);
+        if (tahunAkademikAwal.isNotEmpty && semesterAwal.isNotEmpty) {
+          controller.cariKelas(tahunAkademikAwal, semesterAwal);
+        }
         return controller;
       },
       child: _PilihMataKuliahView(
@@ -169,13 +171,41 @@ class _PilihMataKuliahViewState extends State<_PilihMataKuliahView> {
               }
 
               if (controller.kelasList.isEmpty) {
-                return const Center(
+                final bool inputBelumLengkap = _tahunController.text.trim().isEmpty ||
+                    _semesterController.text.trim().isEmpty;
+
+                return Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      'Belum ada kelas ditawarkan untuk periode ini. Isi tahun akademik & semester lalu tekan Cari.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          inputBelumLengkap ? Icons.search_outlined : Icons.event_busy,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          inputBelumLengkap
+                              ? 'Isi Tahun Akademik & Semester'
+                              : 'Tidak ada kelas ditawarkan',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          inputBelumLengkap
+                              ? 'Silakan isi Tahun Akademik dan Semester di atas lalu tekan "Cari" untuk menampilkan penawaran mata kuliah.'
+                              : 'Belum ada mata kuliah yang ditawarkan untuk periode ini.',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ],
                     ),
                   ),
                 );
