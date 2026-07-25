@@ -78,7 +78,7 @@ class MahasiswaForm
                         TextInput::make('kelas')
                             ->label('Kelas')
                             ->prefixIcon('heroicon-o-rectangle-stack')
-                            ->placeholder('Contoh: TI-3B')
+                            ->placeholder('Contoh: SI-3A')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         TextInput::make('angkatan')
                             ->label('Angkatan')
@@ -88,7 +88,7 @@ class MahasiswaForm
                         TextInput::make('prodi')
                             ->label('Program Studi')
                             ->prefixIcon('heroicon-o-academic-cap')
-                            ->placeholder('Contoh: Teknik Informatika')
+                            ->placeholder('Contoh: Sistem Informasi')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         Select::make('dosen_pembimbing_uid')
                             ->relationship('dosenPembimbing', 'nama')

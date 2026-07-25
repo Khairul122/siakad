@@ -58,7 +58,7 @@ class PercobaanDataSeeder extends Seeder
                 'nama' => 'Dr. Bambang Sutrisno, M.Kom',
                 'nip' => '198501012010011001',
                 'email' => 'bambang.sutrisno@dosen.siakad.ac.id',
-                'prodi' => 'Teknik Informatika',
+                'prodi' => 'Sistem Informasi',
                 'avatar_seed' => 'dosen-bambang',
             ],
             [
@@ -66,7 +66,7 @@ class PercobaanDataSeeder extends Seeder
                 'nama' => 'Prof. Dr. Siti Aminah, M.T.',
                 'nip' => '198703152012012002',
                 'email' => 'siti.aminah@dosen.siakad.ac.id',
-                'prodi' => 'Teknik Informatika',
+                'prodi' => 'Sistem Informasi',
                 'avatar_seed' => 'dosen-siti',
             ],
             [
@@ -74,7 +74,7 @@ class PercobaanDataSeeder extends Seeder
                 'nama' => 'Budi Santoso, S.Kom., M.Sc.',
                 'nip' => '198905202014021003',
                 'email' => 'budi.santoso@dosen.siakad.ac.id',
-                'prodi' => 'Teknik Informatika',
+                'prodi' => 'Sistem Informasi',
                 'avatar_seed' => 'dosen-budi',
             ],
             [
@@ -82,7 +82,7 @@ class PercobaanDataSeeder extends Seeder
                 'nama' => 'Dewi Lestari, M.T.',
                 'nip' => '199108102016032004',
                 'email' => 'dewi.lestari@dosen.siakad.ac.id',
-                'prodi' => 'Teknik Informatika',
+                'prodi' => 'Sistem Informasi',
                 'avatar_seed' => 'dosen-dewi',
             ],
             [
@@ -90,7 +90,7 @@ class PercobaanDataSeeder extends Seeder
                 'nama' => 'Eko Prasetyo, M.Kom.',
                 'nip' => '199312052018041005',
                 'email' => 'eko.prasetyo@dosen.siakad.ac.id',
-                'prodi' => 'Teknik Informatika',
+                'prodi' => 'Sistem Informasi',
                 'avatar_seed' => 'dosen-eko',
             ],
         ];
@@ -118,60 +118,60 @@ class PercobaanDataSeeder extends Seeder
         // 8 Semesters x 5 MataKuliah x 4 SKS = 20 SKS per semester (Total 160 SKS)
         $data = [
             // Semester 1
-            ['kode' => 'IF101', 'nama' => 'Algoritma & Pemrograman', 'sks' => 4, 'semester_ke' => 1],
-            ['kode' => 'IF102', 'nama' => 'Matematika Diskrit', 'sks' => 4, 'semester_ke' => 1],
-            ['kode' => 'IF103', 'nama' => 'Bahasa Indonesia', 'sks' => 4, 'semester_ke' => 1],
-            ['kode' => 'IF104', 'nama' => 'Pengantar Teknologi Informasi', 'sks' => 4, 'semester_ke' => 1],
-            ['kode' => 'IF105', 'nama' => 'Pendidikan Pancasila', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'SI101', 'nama' => 'Algoritma & Pemrograman', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'SI102', 'nama' => 'Matematika Diskrit', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'SI103', 'nama' => 'Bahasa Indonesia', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'SI104', 'nama' => 'Pengantar Teknologi Informasi', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'SI105', 'nama' => 'Pendidikan Pancasila', 'sks' => 4, 'semester_ke' => 1],
 
             // Semester 2
-            ['kode' => 'IF201', 'nama' => 'Struktur Data', 'sks' => 4, 'semester_ke' => 2],
-            ['kode' => 'IF202', 'nama' => 'Kalkulus Informatika', 'sks' => 4, 'semester_ke' => 2],
-            ['kode' => 'IF203', 'nama' => 'Organisasi Komputer', 'sks' => 4, 'semester_ke' => 2],
-            ['kode' => 'IF204', 'nama' => 'Bahasa Inggris Komunikasi', 'sks' => 4, 'semester_ke' => 2],
-            ['kode' => 'IF205', 'nama' => 'Pendidikan Agama', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'SI201', 'nama' => 'Struktur Data', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'SI202', 'nama' => 'Kalkulus Informatika', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'SI203', 'nama' => 'Organisasi Komputer', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'SI204', 'nama' => 'Bahasa Inggris Komunikasi', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'SI205', 'nama' => 'Pendidikan Agama', 'sks' => 4, 'semester_ke' => 2],
 
             // Semester 3
-            ['kode' => 'IF301', 'nama' => 'Pemrograman Web', 'sks' => 4, 'semester_ke' => 3],
-            ['kode' => 'IF302', 'nama' => 'Basis Data', 'sks' => 4, 'semester_ke' => 3],
-            ['kode' => 'IF303', 'nama' => 'Jaringan Komputer', 'sks' => 4, 'semester_ke' => 3],
-            ['kode' => 'IF304', 'nama' => 'Sistem Operasi', 'sks' => 4, 'semester_ke' => 3],
-            ['kode' => 'IF305', 'nama' => 'Rekayasa Perangkat Lunak', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'SI301', 'nama' => 'Pemrograman Web', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'SI302', 'nama' => 'Basis Data', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'SI303', 'nama' => 'Jaringan Komputer', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'SI304', 'nama' => 'Sistem Operasi', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'SI305', 'nama' => 'Rekayasa Perangkat Lunak', 'sks' => 4, 'semester_ke' => 3],
 
             // Semester 4
-            ['kode' => 'IF401', 'nama' => 'Pemrograman Berorientasi Objek', 'sks' => 4, 'semester_ke' => 4],
-            ['kode' => 'IF402', 'nama' => 'Sistem Basis Data Lanjut', 'sks' => 4, 'semester_ke' => 4],
-            ['kode' => 'IF403', 'nama' => 'Keamanan Informasi', 'sks' => 4, 'semester_ke' => 4],
-            ['kode' => 'IF404', 'nama' => 'Analisis & Desain Sistem', 'sks' => 4, 'semester_ke' => 4],
-            ['kode' => 'IF405', 'nama' => 'Interaksi Manusia & Komputer', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'SI401', 'nama' => 'Pemrograman Berorientasi Objek', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'SI402', 'nama' => 'Sistem Basis Data Lanjut', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'SI403', 'nama' => 'Keamanan Informasi', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'SI404', 'nama' => 'Analisis & Desain Sistem', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'SI405', 'nama' => 'Interaksi Manusia & Komputer', 'sks' => 4, 'semester_ke' => 4],
 
             // Semester 5
-            ['kode' => 'IF501', 'nama' => 'Pemrograman Mobile', 'sks' => 4, 'semester_ke' => 5],
-            ['kode' => 'IF502', 'nama' => 'Kecerdasan Buatan', 'sks' => 4, 'semester_ke' => 5],
-            ['kode' => 'IF503', 'nama' => 'Pemrosesan Sinyal Digital', 'sks' => 4, 'semester_ke' => 5],
-            ['kode' => 'IF504', 'nama' => 'Metodologi Penelitian', 'sks' => 4, 'semester_ke' => 5],
-            ['kode' => 'IF505', 'nama' => 'Etika Profesi IT', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'SI501', 'nama' => 'Pemrograman Mobile', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'SI502', 'nama' => 'Kecerdasan Buatan', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'SI503', 'nama' => 'Pemrosesan Sinyal Digital', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'SI504', 'nama' => 'Metodologi Penelitian', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'SI505', 'nama' => 'Etika Profesi IT', 'sks' => 4, 'semester_ke' => 5],
 
             // Semester 6
-            ['kode' => 'IF601', 'nama' => 'Machine Learning', 'sks' => 4, 'semester_ke' => 6],
-            ['kode' => 'IF602', 'nama' => 'Cloud Computing', 'sks' => 4, 'semester_ke' => 6],
-            ['kode' => 'IF603', 'nama' => 'Pengujian Perangkat Lunak', 'sks' => 4, 'semester_ke' => 6],
-            ['kode' => 'IF604', 'nama' => 'Manajemen Proyek IT', 'sks' => 4, 'semester_ke' => 6],
-            ['kode' => 'IF605', 'nama' => 'Kriptografi', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'SI601', 'nama' => 'Machine Learning', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'SI602', 'nama' => 'Cloud Computing', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'SI603', 'nama' => 'Pengujian Perangkat Lunak', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'SI604', 'nama' => 'Manajemen Proyek IT', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'SI605', 'nama' => 'Kriptografi', 'sks' => 4, 'semester_ke' => 6],
 
             // Semester 7
-            ['kode' => 'IF701', 'nama' => 'Big Data Analytics', 'sks' => 4, 'semester_ke' => 7],
-            ['kode' => 'IF702', 'nama' => 'Internet of Things', 'sks' => 4, 'semester_ke' => 7],
-            ['kode' => 'IF703', 'nama' => 'Kerja Praktik / Magang', 'sks' => 4, 'semester_ke' => 7],
-            ['kode' => 'IF704', 'nama' => 'Kewirausahaan Digital', 'sks' => 4, 'semester_ke' => 7],
-            ['kode' => 'IF705', 'nama' => 'Kapita Selekta', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'SI701', 'nama' => 'Big Data Analytics', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'SI702', 'nama' => 'Internet of Things', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'SI703', 'nama' => 'Kerja Praktik / Magang', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'SI704', 'nama' => 'Kewirausahaan Digital', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'SI705', 'nama' => 'Kapita Selekta', 'sks' => 4, 'semester_ke' => 7],
 
             // Semester 8
-            ['kode' => 'IF801', 'nama' => 'Skripsi / Tugas Akhir', 'sks' => 4, 'semester_ke' => 8],
-            ['kode' => 'IF802', 'nama' => 'Seminar Hasil', 'sks' => 4, 'semester_ke' => 8],
-            ['kode' => 'IF803', 'nama' => 'Technopreneurship', 'sks' => 4, 'semester_ke' => 8],
-            ['kode' => 'IF804', 'nama' => 'Tata Kelola IT', 'sks' => 4, 'semester_ke' => 8],
-            ['kode' => 'IF805', 'nama' => 'Etika Profesi Lanjut', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'SI801', 'nama' => 'Skripsi / Tugas Akhir', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'SI802', 'nama' => 'Seminar Hasil', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'SI803', 'nama' => 'Technopreneurship', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'SI804', 'nama' => 'Tata Kelola IT', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'SI805', 'nama' => 'Etika Profesi Lanjut', 'sks' => 4, 'semester_ke' => 8],
         ];
 
         $result = [];
@@ -181,7 +181,7 @@ class PercobaanDataSeeder extends Seeder
                 [
                     'nama' => $d['nama'],
                     'sks' => $d['sks'],
-                    'prodi' => 'Teknik Informatika',
+                    'prodi' => 'Sistem Informasi',
                     'semester_ke' => $d['semester_ke'],
                 ]
             );
@@ -302,9 +302,9 @@ class PercobaanDataSeeder extends Seeder
                     'tanggal_lahir' => $d['tanggal_lahir'],
                     'alamat' => $d['alamat'],
                     'photo_url' => $this->downloadFoto('mahasiswa', $d['avatar_seed']),
-                    'kelas' => 'TI-3A',
+                    'kelas' => 'SI-3A',
                     'angkatan' => '2023',
-                    'prodi' => 'Teknik Informatika',
+                    'prodi' => 'Sistem Informasi',
                     'dosen_pembimbing_uid' => $dosenList[$d['dosen']]->uid,
                 ]
             );

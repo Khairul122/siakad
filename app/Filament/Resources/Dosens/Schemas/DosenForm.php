@@ -48,7 +48,7 @@ class DosenForm
                         TextInput::make('prodi')
                             ->label('Program Studi')
                             ->prefixIcon('heroicon-o-academic-cap')
-                            ->placeholder('Contoh: Teknik Informatika')
+                            ->placeholder('Contoh: Sistem Informasi')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         FileUpload::make('photo_url')
                             ->label('Foto Profil')

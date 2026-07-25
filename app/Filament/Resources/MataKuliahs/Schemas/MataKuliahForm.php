@@ -37,7 +37,7 @@ class MataKuliahForm
                         TextInput::make('prodi')
                             ->label('Program Studi')
                             ->prefixIcon('heroicon-o-academic-cap')
-                            ->placeholder('Contoh: Teknik Informatika')
+                            ->placeholder('Contoh: Sistem Informasi')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         TextInput::make('semester_ke')
                             ->required()
