@@ -1,19 +1,42 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistem_akademik/features/krs/domain/kelas_kuliah.dart';
+import 'package:sistem_akademik/features/krs/domain/krs.dart';
 import 'package:sistem_akademik/features/krs/domain/krs_repository.dart';
 import 'package:sistem_akademik/features/krs/presentation/controllers/pilih_mata_kuliah_controller.dart';
 
 class FakeKrsRepository implements KrsRepository {
   @override
-  Future<dynamic> fetchKrs() async => null;
+  Future<Krs?> fetchKrs() async => null;
+
   @override
   Future<List<KelasKuliah>> fetchKelasTersedia({required String tahunAkademik, required String semester}) async => [];
+
   @override
   Future<KuotaSks> fetchKuota() async => const KuotaSks(ips: 3.5, maxSks: 24);
+
   @override
-  Future<dynamic> submitKrs({required String tahunAkademik, required String semester, required List<int> kelasKuliahIds}) async => null;
+  Future<Krs> submitKrs({required String tahunAkademik, required String semester, required List<int> kelasKuliahIds}) async {
+    return const Krs(
+      id: '1',
+      uid: 'user1',
+      tahunAkademik: '2025/2026',
+      semester: '1',
+      status: 'diajukan',
+      mataKuliah: [],
+    );
+  }
+
   @override
-  Future<dynamic> updateKrs(String id, {required List<int> kelasKuliahIds, String? tahunAkademik, String? semester}) async => null;
+  Future<Krs> updateKrs(String id, {required List<int> kelasKuliahIds, String? tahunAkademik, String? semester}) async {
+    return Krs(
+      id: id,
+      uid: 'user1',
+      tahunAkademik: tahunAkademik ?? '2025/2026',
+      semester: semester ?? '1',
+      status: 'diajukan',
+      mataKuliah: const [],
+    );
+  }
 }
 
 void main() {
@@ -40,6 +63,8 @@ void main() {
         ruangan: 'R101',
         kuota: 30,
         terisi: 10,
+        tahunAkademik: '2025/2026',
+        semester: '1',
       ),
       const KelasKuliah(
         id: 2,
@@ -54,6 +79,8 @@ void main() {
         ruangan: 'R102',
         kuota: 30,
         terisi: 5,
+        tahunAkademik: '2025/2026',
+        semester: '1',
       ),
     ];
 
