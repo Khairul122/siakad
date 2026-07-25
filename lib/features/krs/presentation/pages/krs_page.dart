@@ -125,7 +125,7 @@ class _KrsView extends StatelessWidget {
                       const Divider(),
                       _buildInfoRow(Icons.date_range, 'Tahun Ajaran', krs.tahunAkademik),
                       const Divider(),
-                      _buildInfoRow(Icons.timelapse, 'Semester', krs.semester),
+                      _buildInfoRow(Icons.timelapse, 'Semester', 'Semester ${krs.semester}'),
                     ],
                   ),
                 ),

@@ -265,10 +265,20 @@ class _JadwalKuliahView extends StatelessWidget {
               children: [
                 Text(jadwal.mataKuliah,
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 if (jadwal.keterangan.isNotEmpty) ...[
-                  Text(jadwal.keterangan, style: const TextStyle(fontSize: 13, color: Colors.grey)),
-                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      jadwal.keterangan,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.accent),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                 ],
                 Row(
                   children: [
