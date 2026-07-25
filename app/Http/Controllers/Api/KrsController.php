@@ -146,6 +146,8 @@ class KrsController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
+            'tahun_akademik' => ['nullable', 'string', 'max:20'],
+            'semester' => ['nullable', 'string', 'max:20'],
             'kelas_kuliah_ids' => ['required', 'array', 'min:1'],
             'kelas_kuliah_ids.*' => ['integer', 'exists:kelas_kuliah,id'],
         ]);
@@ -155,13 +157,16 @@ class KrsController extends Controller
         }
 
         $data = $validator->validated();
+        $tahunAkademik = !empty($data['tahun_akademik']) ? $data['tahun_akademik'] : $krs->tahun_akademik;
+        $semester = !empty($data['semester']) ? $data['semester'] : $krs->semester;
+
         $kelasList = KelasKuliah::with('mataKuliah')->whereIn('id', $data['kelas_kuliah_ids'])->get();
 
-        if ($error = $this->validasiPengajuan($krs->uid, $krs->tahun_akademik, $krs->semester, $kelasList)) {
+        if ($error = $this->validasiPengajuan($krs->uid, $tahunAkademik, $semester, $kelasList)) {
             return $error;
         }
 
-        DB::transaction(function () use ($krs, $kelasList) {
+        DB::transaction(function () use ($krs, $tahunAkademik, $semester, $kelasList) {
             $krs->mataKuliah()->delete();
 
             foreach ($kelasList as $kelas) {
@@ -169,6 +174,8 @@ class KrsController extends Controller
             }
 
             $krs->update([
+                'tahun_akademik' => $tahunAkademik,
+                'semester' => $semester,
                 'status' => 'diajukan',
                 'catatan_dosen' => null,
                 'disetujui_oleh' => null,
