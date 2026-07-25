@@ -17,10 +17,15 @@ class ApiKrsRepository implements KrsRepository {
 
   @override
   Future<List<KelasKuliah>> fetchKelasTersedia({required String tahunAkademik, required String semester}) async {
-    final data = await _api.get(ApiPaths.kelasKuliah, query: {
-      'tahun_akademik': tahunAkademik,
-      'semester': semester,
-    }) as List<dynamic>;
+    final query = <String, dynamic>{};
+    if (tahunAkademik.trim().isNotEmpty) {
+      query['tahun_akademik'] = tahunAkademik.trim();
+    }
+    if (semester.trim().isNotEmpty) {
+      query['semester'] = semester.trim();
+    }
+
+    final data = await _api.get(ApiPaths.kelasKuliah, query: query.isEmpty ? null : query) as List<dynamic>;
 
     return data.map((item) => KelasKuliah.fromMap(Map<String, dynamic>.from(item as Map))).toList();
   }

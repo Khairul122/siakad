@@ -26,9 +26,7 @@ class PilihMataKuliahPage extends StatelessWidget {
           existingKrsId: existingKrsId,
           preselectedIds: preselectedIds,
         );
-        if (tahunAkademikAwal.isNotEmpty && semesterAwal.isNotEmpty) {
-          controller.cariKelas(tahunAkademikAwal, semesterAwal);
-        }
+        controller.cariKelas(tahunAkademikAwal, semesterAwal);
         return controller;
       },
       child: _PilihMataKuliahView(
