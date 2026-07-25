@@ -86,6 +86,12 @@ class _PilihMataKuliahViewState extends State<_PilihMataKuliahView> {
                 Expanded(
                   child: TextField(
                     controller: _tahunController,
+                    onChanged: (val) {
+                      context.read<PilihMataKuliahController>().updatePeriode(
+                            val.trim(),
+                            _semesterController.text.trim(),
+                          );
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Tahun Akademik',
                       hintText: '2025/2026',
@@ -98,6 +104,12 @@ class _PilihMataKuliahViewState extends State<_PilihMataKuliahView> {
                 Expanded(
                   child: TextField(
                     controller: _semesterController,
+                    onChanged: (val) {
+                      context.read<PilihMataKuliahController>().updatePeriode(
+                            _tahunController.text.trim(),
+                            val.trim(),
+                          );
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Semester',
                       hintText: '1',
@@ -199,7 +211,10 @@ class _PilihMataKuliahViewState extends State<_PilihMataKuliahView> {
                           controller.isSubmitting)
                       ? null
                       : () async {
-                          final krs = await controller.submit();
+                          final krs = await controller.submit(
+                            inputTahunAkademik: _tahunController.text.trim(),
+                            inputSemester: _semesterController.text.trim(),
+                          );
                           if (!context.mounted) return;
                           if (krs != null) {
                             Navigator.pop(context, true);

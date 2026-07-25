@@ -17,5 +17,10 @@ abstract class KrsRepository {
     required String semester,
     required List<int> kelasKuliahIds,
   });
-  Future<Krs> updateKrs(String id, {required List<int> kelasKuliahIds});
+  Future<Krs> updateKrs(
+    String id, {
+    required List<int> kelasKuliahIds,
+    String? tahunAkademik,
+    String? semester,
+  });
 }

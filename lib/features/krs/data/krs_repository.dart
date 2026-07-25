@@ -50,10 +50,23 @@ class ApiKrsRepository implements KrsRepository {
   }
 
   @override
-  Future<Krs> updateKrs(String id, {required List<int> kelasKuliahIds}) async {
-    final data = await _api.put(ApiPaths.krsItem(id), body: {
+  Future<Krs> updateKrs(
+    String id, {
+    required List<int> kelasKuliahIds,
+    String? tahunAkademik,
+    String? semester,
+  }) async {
+    final body = <String, dynamic>{
       'kelas_kuliah_ids': kelasKuliahIds,
-    }) as Map<String, dynamic>;
+    };
+    if (tahunAkademik != null && tahunAkademik.isNotEmpty) {
+      body['tahun_akademik'] = tahunAkademik;
+    }
+    if (semester != null && semester.isNotEmpty) {
+      body['semester'] = semester;
+    }
+
+    final data = await _api.put(ApiPaths.krsItem(id), body: body) as Map<String, dynamic>;
 
     return Krs.fromMap('${data['id']}', data);
   }

@@ -54,9 +54,13 @@ class PilihMataKuliahController extends ChangeNotifier {
     }
   }
 
-  Future<void> cariKelas(String tahunAkademikBaru, String semesterBaru) async {
+  void updatePeriode(String tahunAkademikBaru, String semesterBaru) {
     tahunAkademik = tahunAkademikBaru;
     semester = semesterBaru;
+  }
+
+  Future<void> cariKelas(String tahunAkademikBaru, String semesterBaru) async {
+    updatePeriode(tahunAkademikBaru, semesterBaru);
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -83,8 +87,21 @@ class PilihMataKuliahController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Krs?> submit() async {
+  Future<Krs?> submit({String? inputTahunAkademik, String? inputSemester}) async {
+    if (inputTahunAkademik != null && inputTahunAkademik.isNotEmpty) {
+      tahunAkademik = inputTahunAkademik;
+    }
+    if (inputSemester != null && inputSemester.isNotEmpty) {
+      semester = inputSemester;
+    }
+
     if (selectedIds.isEmpty || melebihiKuota) return null;
+
+    if (existingKrsId == null && (tahunAkademik.isEmpty || semester.isEmpty)) {
+      submitError = 'Gagal mengajukan KRS: Tahun akademik dan semester wajib diisi.';
+      notifyListeners();
+      return null;
+    }
 
     isSubmitting = true;
     submitError = null;
@@ -93,7 +110,12 @@ class PilihMataKuliahController extends ChangeNotifier {
     try {
       final Krs krs;
       if (existingKrsId != null) {
-        krs = await _repository.updateKrs(existingKrsId!, kelasKuliahIds: selectedIds.toList());
+        krs = await _repository.updateKrs(
+          existingKrsId!,
+          kelasKuliahIds: selectedIds.toList(),
+          tahunAkademik: tahunAkademik.isNotEmpty ? tahunAkademik : null,
+          semester: semester.isNotEmpty ? semester : null,
+        );
       } else {
         krs = await _repository.submitKrs(
           tahunAkademik: tahunAkademik,
