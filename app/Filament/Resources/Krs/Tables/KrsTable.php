@@ -22,7 +22,7 @@ class KrsTable
                     ->searchable(),
                 TextColumn::make('semester')
                     ->searchable(),
-                TextColumn::make('mataKuliah_count')
+                TextColumn::make('mata_kuliah_count')
                     ->counts('mataKuliah')
                     ->label('Jml MK'),
                 TextColumn::make('status')

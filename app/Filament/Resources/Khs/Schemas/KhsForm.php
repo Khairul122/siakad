@@ -54,7 +54,7 @@ class KhsForm
                             ->required()
                             ->label('Semester')
                             ->prefixIcon('heroicon-o-list-bullet')
-                            ->placeholder('Contoh: 3 / Ganjil'),
+                            ->placeholder('Contoh: 3'),
                     ])
                     ->columns(2),
 

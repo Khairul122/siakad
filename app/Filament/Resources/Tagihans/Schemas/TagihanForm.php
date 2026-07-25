@@ -32,7 +32,7 @@ class TagihanForm
                             ->required()
                             ->label('Jenis Tagihan')
                             ->prefixIcon('heroicon-o-tag')
-                            ->placeholder('Contoh: UKT Semester Ganjil, SPP Bulan Juli'),
+                            ->placeholder('Contoh: UKT Semester 3, SPP Bulan Juli'),
                         TextInput::make('nominal')
                             ->numeric()
                             ->required()

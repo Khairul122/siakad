@@ -25,8 +25,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Seeder data percobaan/demo untuk seluruh alur SIAKAD (dosen, mata kuliah, kelas,
- * mahasiswa, KRS, jadwal, nilai, presensi, KHS, tagihan, notifikasi, informasi, kegiatan).
+ * Seeder data percobaan/demo untuk seluruh alur SIAKAD (5 Dosen, 5 Mahasiswa, 8 Semester @ 20 SKS).
  * Jalankan: php artisan db:seed --class=PercobaanDataSeeder
  */
 class PercobaanDataSeeder extends Seeder
@@ -34,8 +33,6 @@ class PercobaanDataSeeder extends Seeder
     private const PASSWORD = 'password';
 
     private const TAHUN_AKADEMIK = '2025/2026';
-
-    private const SEMESTER = '3';
 
     public function run(AkademikService $akademikService): void
     {
@@ -50,7 +47,7 @@ class PercobaanDataSeeder extends Seeder
         $this->seedNotifikasi($mahasiswaList);
         $this->seedInformasiKegiatan();
 
-        $this->command?->info('Data percobaan SIAKAD berhasil dibuat (4 mahasiswa, password: '.self::PASSWORD.').');
+        $this->command?->info('Data percobaan SIAKAD berhasil dibuat (5 Dosen, 5 Mahasiswa, 8 Semester @ 20 SKS, password: '.self::PASSWORD.').');
     }
 
     private function seedDosen(): array
@@ -66,11 +63,35 @@ class PercobaanDataSeeder extends Seeder
             ],
             [
                 'uid' => 'dosen-002',
-                'nama' => 'Siti Aminah, M.T.',
+                'nama' => 'Prof. Dr. Siti Aminah, M.T.',
                 'nip' => '198703152012012002',
                 'email' => 'siti.aminah@dosen.siakad.ac.id',
                 'prodi' => 'Teknik Informatika',
                 'avatar_seed' => 'dosen-siti',
+            ],
+            [
+                'uid' => 'dosen-003',
+                'nama' => 'Budi Santoso, S.Kom., M.Sc.',
+                'nip' => '198905202014021003',
+                'email' => 'budi.santoso@dosen.siakad.ac.id',
+                'prodi' => 'Teknik Informatika',
+                'avatar_seed' => 'dosen-budi',
+            ],
+            [
+                'uid' => 'dosen-004',
+                'nama' => 'Dewi Lestari, M.T.',
+                'nip' => '199108102016032004',
+                'email' => 'dewi.lestari@dosen.siakad.ac.id',
+                'prodi' => 'Teknik Informatika',
+                'avatar_seed' => 'dosen-dewi',
+            ],
+            [
+                'uid' => 'dosen-005',
+                'nama' => 'Eko Prasetyo, M.Kom.',
+                'nip' => '199312052018041005',
+                'email' => 'eko.prasetyo@dosen.siakad.ac.id',
+                'prodi' => 'Teknik Informatika',
+                'avatar_seed' => 'dosen-eko',
             ],
         ];
 
@@ -94,12 +115,63 @@ class PercobaanDataSeeder extends Seeder
 
     private function seedMataKuliah(): array
     {
+        // 8 Semesters x 5 MataKuliah x 4 SKS = 20 SKS per semester (Total 160 SKS)
         $data = [
-            ['kode' => 'IF301', 'nama' => 'Pemrograman Web', 'sks' => 3, 'semester_ke' => 3],
-            ['kode' => 'IF302', 'nama' => 'Basis Data', 'sks' => 3, 'semester_ke' => 3],
-            ['kode' => 'IF303', 'nama' => 'Struktur Data', 'sks' => 3, 'semester_ke' => 3],
-            ['kode' => 'IF304', 'nama' => 'Jaringan Komputer', 'sks' => 2, 'semester_ke' => 3],
-            ['kode' => 'IF305', 'nama' => 'Matematika Diskrit', 'sks' => 2, 'semester_ke' => 3],
+            // Semester 1
+            ['kode' => 'IF101', 'nama' => 'Algoritma & Pemrograman', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'IF102', 'nama' => 'Matematika Diskrit', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'IF103', 'nama' => 'Bahasa Indonesia', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'IF104', 'nama' => 'Pengantar Teknologi Informasi', 'sks' => 4, 'semester_ke' => 1],
+            ['kode' => 'IF105', 'nama' => 'Pendidikan Pancasila', 'sks' => 4, 'semester_ke' => 1],
+
+            // Semester 2
+            ['kode' => 'IF201', 'nama' => 'Struktur Data', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'IF202', 'nama' => 'Kalkulus Informatika', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'IF203', 'nama' => 'Organisasi Komputer', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'IF204', 'nama' => 'Bahasa Inggris Komunikasi', 'sks' => 4, 'semester_ke' => 2],
+            ['kode' => 'IF205', 'nama' => 'Pendidikan Agama', 'sks' => 4, 'semester_ke' => 2],
+
+            // Semester 3
+            ['kode' => 'IF301', 'nama' => 'Pemrograman Web', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'IF302', 'nama' => 'Basis Data', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'IF303', 'nama' => 'Jaringan Komputer', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'IF304', 'nama' => 'Sistem Operasi', 'sks' => 4, 'semester_ke' => 3],
+            ['kode' => 'IF305', 'nama' => 'Rekayasa Perangkat Lunak', 'sks' => 4, 'semester_ke' => 3],
+
+            // Semester 4
+            ['kode' => 'IF401', 'nama' => 'Pemrograman Berorientasi Objek', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'IF402', 'nama' => 'Sistem Basis Data Lanjut', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'IF403', 'nama' => 'Keamanan Informasi', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'IF404', 'nama' => 'Analisis & Desain Sistem', 'sks' => 4, 'semester_ke' => 4],
+            ['kode' => 'IF405', 'nama' => 'Interaksi Manusia & Komputer', 'sks' => 4, 'semester_ke' => 4],
+
+            // Semester 5
+            ['kode' => 'IF501', 'nama' => 'Pemrograman Mobile', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'IF502', 'nama' => 'Kecerdasan Buatan', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'IF503', 'nama' => 'Pemrosesan Sinyal Digital', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'IF504', 'nama' => 'Metodologi Penelitian', 'sks' => 4, 'semester_ke' => 5],
+            ['kode' => 'IF505', 'nama' => 'Etika Profesi IT', 'sks' => 4, 'semester_ke' => 5],
+
+            // Semester 6
+            ['kode' => 'IF601', 'nama' => 'Machine Learning', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'IF602', 'nama' => 'Cloud Computing', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'IF603', 'nama' => 'Pengujian Perangkat Lunak', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'IF604', 'nama' => 'Manajemen Proyek IT', 'sks' => 4, 'semester_ke' => 6],
+            ['kode' => 'IF605', 'nama' => 'Kriptografi', 'sks' => 4, 'semester_ke' => 6],
+
+            // Semester 7
+            ['kode' => 'IF701', 'nama' => 'Big Data Analytics', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'IF702', 'nama' => 'Internet of Things', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'IF703', 'nama' => 'Kerja Praktik / Magang', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'IF704', 'nama' => 'Kewirausahaan Digital', 'sks' => 4, 'semester_ke' => 7],
+            ['kode' => 'IF705', 'nama' => 'Kapita Selekta', 'sks' => 4, 'semester_ke' => 7],
+
+            // Semester 8
+            ['kode' => 'IF801', 'nama' => 'Skripsi / Tugas Akhir', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'IF802', 'nama' => 'Seminar Hasil', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'IF803', 'nama' => 'Technopreneurship', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'IF804', 'nama' => 'Tata Kelola IT', 'sks' => 4, 'semester_ke' => 8],
+            ['kode' => 'IF805', 'nama' => 'Etika Profesi Lanjut', 'sks' => 4, 'semester_ke' => 8],
         ];
 
         $result = [];
@@ -120,34 +192,39 @@ class PercobaanDataSeeder extends Seeder
 
     private function seedKelasKuliah(array $mataKuliahList, array $dosenList): array
     {
-        $data = [
-            ['kode' => 'IF301', 'dosen' => 'dosen-001', 'hari' => 'Senin', 'mulai' => '08:00', 'selesai' => '10:30', 'ruangan' => 'R.301', 'kuota' => 40],
-            ['kode' => 'IF302', 'dosen' => 'dosen-002', 'hari' => 'Senin', 'mulai' => '10:30', 'selesai' => '13:00', 'ruangan' => 'R.302', 'kuota' => 40],
-            ['kode' => 'IF303', 'dosen' => 'dosen-001', 'hari' => 'Selasa', 'mulai' => '08:00', 'selesai' => '10:30', 'ruangan' => 'R.303', 'kuota' => 40],
-            ['kode' => 'IF304', 'dosen' => 'dosen-002', 'hari' => 'Rabu', 'mulai' => '08:00', 'selesai' => '09:40', 'ruangan' => 'Lab. Jaringan', 'kuota' => 35],
-            ['kode' => 'IF305', 'dosen' => 'dosen-001', 'hari' => 'Kamis', 'mulai' => '08:00', 'selesai' => '09:40', 'ruangan' => 'R.301', 'kuota' => 40],
+        $dosenKeys = array_keys($dosenList);
+        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $jamSlot = [
+            ['mulai' => '08:00', 'selesai' => '10:30'],
+            ['mulai' => '10:30', 'selesai' => '13:00'],
+            ['mulai' => '13:30', 'selesai' => '16:00'],
         ];
 
         $result = [];
-        foreach ($data as $d) {
-            $mataKuliah = $mataKuliahList[$d['kode']];
+        $i = 0;
+        foreach ($mataKuliahList as $kode => $mk) {
+            $dosenKey = $dosenKeys[$i % count($dosenKeys)];
+            $hari = $hariList[$i % count($hariList)];
+            $slot = $jamSlot[($i / count($hariList)) % count($jamSlot)];
+            $ruangan = 'R.'.(301 + ($i % 5));
 
-            $result[$d['kode']] = KelasKuliah::updateOrCreate(
+            $result[$kode] = KelasKuliah::updateOrCreate(
                 [
-                    'mata_kuliah_id' => $mataKuliah->id,
+                    'mata_kuliah_id' => $mk->id,
                     'nama_kelas' => 'A',
                     'tahun_akademik' => self::TAHUN_AKADEMIK,
-                    'semester' => self::SEMESTER,
+                    'semester' => (string) $mk->semester_ke,
                 ],
                 [
-                    'dosen_uid' => $dosenList[$d['dosen']]->uid,
-                    'hari' => $d['hari'],
-                    'jam_mulai' => $d['mulai'],
-                    'jam_selesai' => $d['selesai'],
-                    'ruangan' => $d['ruangan'],
-                    'kuota' => $d['kuota'],
+                    'dosen_uid' => $dosenList[$dosenKey]->uid,
+                    'hari' => $hari,
+                    'jam_mulai' => $slot['mulai'],
+                    'jam_selesai' => $slot['selesai'],
+                    'ruangan' => $ruangan,
+                    'kuota' => 40,
                 ]
             );
+            $i++;
         }
 
         return $result;
@@ -155,46 +232,58 @@ class PercobaanDataSeeder extends Seeder
 
     private function seedMahasiswa(array $dosenList): array
     {
+        $dosenKeys = array_keys($dosenList);
+
         $data = [
             [
                 'uid' => 'mhs-001',
-                'nama' => 'Ahmad Fauzan Ramadhan',
-                'nim' => '2023010001',
+                'nama' => 'Khairul Huda',
+                'nim' => '2025001',
                 'no_hp' => '081234560001',
                 'tanggal_lahir' => '2005-03-14',
                 'alamat' => 'Jl. Merdeka No. 12, Bandung, Jawa Barat',
-                'dosen' => 'dosen-001',
-                'avatar_seed' => 'mhs-ahmad',
+                'dosen' => $dosenKeys[0],
+                'avatar_seed' => 'mhs-khairul',
             ],
             [
                 'uid' => 'mhs-002',
                 'nama' => 'Siti Nur Aisyah',
-                'nim' => '2023010002',
+                'nim' => '2025002',
                 'no_hp' => '081234560002',
                 'tanggal_lahir' => '2005-07-22',
                 'alamat' => 'Jl. Kenanga No. 5, Bandung, Jawa Barat',
-                'dosen' => 'dosen-001',
+                'dosen' => $dosenKeys[1],
                 'avatar_seed' => 'mhs-siti',
             ],
             [
                 'uid' => 'mhs-003',
                 'nama' => 'Muhammad Rizky Pratama',
-                'nim' => '2023010003',
+                'nim' => '2025003',
                 'no_hp' => '081234560003',
                 'tanggal_lahir' => '2004-11-30',
                 'alamat' => 'Jl. Anggrek No. 8, Cimahi, Jawa Barat',
-                'dosen' => 'dosen-002',
+                'dosen' => $dosenKeys[2],
                 'avatar_seed' => 'mhs-rizky',
             ],
             [
                 'uid' => 'mhs-004',
                 'nama' => 'Dewi Anggraini Putri',
-                'nim' => '2023010004',
+                'nim' => '2025004',
                 'no_hp' => '081234560004',
                 'tanggal_lahir' => '2005-01-09',
                 'alamat' => 'Jl. Melati No. 21, Bandung, Jawa Barat',
-                'dosen' => 'dosen-002',
+                'dosen' => $dosenKeys[3],
                 'avatar_seed' => 'mhs-dewi',
+            ],
+            [
+                'uid' => 'mhs-005',
+                'nama' => 'Sabri Siraj',
+                'nim' => '2025005',
+                'no_hp' => '081234560005',
+                'tanggal_lahir' => '2004-05-18',
+                'alamat' => 'Jl. Ciumbuleuit No. 44, Bandung, Jawa Barat',
+                'dosen' => $dosenKeys[4],
+                'avatar_seed' => 'mhs-sabri',
             ],
         ];
 
@@ -226,12 +315,15 @@ class PercobaanDataSeeder extends Seeder
 
     private function seedKrsDanJadwal(array $mahasiswaList, array $kelasList): void
     {
+        // Seed KRS and Jadwal for current active semester (Semester 3)
+        $kelasSemester3 = array_filter($kelasList, fn ($k) => (string) $k->semester === '3');
+
         foreach ($mahasiswaList as $mahasiswa) {
             $krs = Krs::updateOrCreate(
                 [
                     'uid' => $mahasiswa->uid,
                     'tahun_akademik' => self::TAHUN_AKADEMIK,
-                    'semester' => self::SEMESTER,
+                    'semester' => '3',
                 ],
                 [
                     'status' => 'disetujui',
@@ -244,7 +336,7 @@ class PercobaanDataSeeder extends Seeder
             $krs->mataKuliah()->delete();
             JadwalKuliah::where('uid', $mahasiswa->uid)->delete();
 
-            foreach ($kelasList as $kelas) {
+            foreach ($kelasSemester3 as $kelas) {
                 $kelas->loadMissing('mataKuliah');
 
                 KrsMataKuliah::create([
@@ -275,12 +367,12 @@ class PercobaanDataSeeder extends Seeder
 
     private function seedNilaiPresensiKhs(array $mahasiswaList, array $kelasList, AkademikService $akademikService): void
     {
-        // Variasi nilai per mahasiswa supaya IPS/IPK tidak seragam.
         $polaNilai = [
             'mhs-001' => ['tugas' => 88, 'uts' => 85, 'uas' => 90],
             'mhs-002' => ['tugas' => 80, 'uts' => 78, 'uas' => 82],
             'mhs-003' => ['tugas' => 70, 'uts' => 65, 'uas' => 68],
             'mhs-004' => ['tugas' => 92, 'uts' => 95, 'uas' => 94],
+            'mhs-005' => ['tugas' => 85, 'uts' => 88, 'uas' => 86],
         ];
 
         $polaPresensi = ['Hadir', 'Hadir', 'Hadir', 'Izin'];
@@ -332,13 +424,14 @@ class PercobaanDataSeeder extends Seeder
             'mhs-002' => 'Menunggu Konfirmasi',
             'mhs-003' => 'Belum Dibayar',
             'mhs-004' => 'Lunas',
+            'mhs-005' => 'Lunas',
         ];
 
         foreach ($mahasiswaList as $mahasiswa) {
             $status = $statusPerMahasiswa[$mahasiswa->uid];
 
             Tagihan::updateOrCreate(
-                ['uid' => $mahasiswa->uid, 'jenis' => 'SPP Semester Ganjil 2025/2026'],
+                ['uid' => $mahasiswa->uid, 'jenis' => 'SPP Semester 3 2025/2026'],
                 [
                     'nominal' => 3500000,
                     'status' => $status,
@@ -362,7 +455,7 @@ class PercobaanDataSeeder extends Seeder
                 'uid' => $mahasiswa->uid,
                 'tipe_user' => 'mahasiswa',
                 'judul' => 'KRS Disetujui',
-                'isi' => 'KRS Anda untuk semester Ganjil 2025/2026 telah disetujui oleh dosen wali.',
+                'isi' => 'KRS Anda untuk Semester 3 2025/2026 telah disetujui oleh dosen wali.',
                 'dibaca' => false,
             ]);
 
@@ -370,7 +463,7 @@ class PercobaanDataSeeder extends Seeder
                 'uid' => $mahasiswa->uid,
                 'tipe_user' => 'mahasiswa',
                 'judul' => 'Tagihan SPP',
-                'isi' => 'Tagihan SPP semester Ganjil 2025/2026 telah diterbitkan, silakan cek menu Tagihan.',
+                'isi' => 'Tagihan SPP Semester 3 2025/2026 telah diterbitkan, silakan cek menu Tagihan.',
                 'dibaca' => false,
             ]);
         }
@@ -379,7 +472,7 @@ class PercobaanDataSeeder extends Seeder
     private function seedInformasiKegiatan(): void
     {
         Informasi::updateOrCreate(
-            ['judul' => 'Jadwal UTS Semester Ganjil 2025/2026'],
+            ['judul' => 'Jadwal UTS Semester 3 2025/2026'],
             [
                 'isi' => 'Ujian Tengah Semester akan dilaksanakan mulai 20 Oktober 2026. Silakan cek jadwal masing-masing mata kuliah.',
                 'tanggal' => now()->toDateTimeString(),
@@ -401,10 +494,6 @@ class PercobaanDataSeeder extends Seeder
         );
     }
 
-    /**
-     * Download foto acak dari internet (Pravatar/Picsum) dan simpan ke storage lokal,
-     * mengembalikan path relatif (konsisten dengan HasDynamicStorageUrls::cleanStoragePath).
-     */
     private function downloadFoto(string $folder, string $seed): string
     {
         $isFoto = in_array($folder, ['mahasiswa', 'dosen'], true);
