@@ -50,6 +50,20 @@ class KrsController extends Controller
             $query->where('status', $request->input('status'));
         }
 
+        if ($request->filled('semester')) {
+            $sem = trim($request->input('semester'));
+            if ($sem !== '') {
+                $query->where(function ($q) use ($sem) {
+                    $q->where('semester', $sem);
+                    if (in_array(strtolower($sem), ['1', '3', '5', '7', 'ganjil'], true)) {
+                        $q->orWhereIn('semester', ['1', '3', '5', '7', 'Ganjil', 'ganjil']);
+                    } elseif (in_array(strtolower($sem), ['2', '4', '6', '8', 'genap'], true)) {
+                        $q->orWhereIn('semester', ['2', '4', '6', '8', 'Genap', 'genap']);
+                    }
+                });
+            }
+        }
+
         return response()->json($query->get());
     }
 
@@ -84,26 +98,42 @@ class KrsController extends Controller
         }
 
         $data = $validator->validated();
+        $kelasList = KelasKuliah::with('mataKuliah')->whereIn('id', $data['kelas_kuliah_ids'])->get();
+
+        $tahunAkademik = $kelasList->first()?->tahun_akademik ?? $data['tahun_akademik'];
+        $semester = $kelasList->first()?->semester ?? $data['semester'];
 
         $existing = Krs::where('uid', $uid)
-            ->where('tahun_akademik', $data['tahun_akademik'])
-            ->where('semester', $data['semester'])
+            ->where(function ($q) use ($tahunAkademik, $data) {
+                $q->where('tahun_akademik', $tahunAkademik)
+                  ->orWhere('tahun_akademik', $data['tahun_akademik']);
+            })
+            ->where(function ($q) use ($semester, $data) {
+                $sem1 = trim($semester);
+                $sem2 = trim($data['semester']);
+                $q->whereIn('semester', [$sem1, $sem2]);
+                if (in_array(strtolower($sem1), ['1', '3', '5', '7', 'ganjil'], true) || in_array(strtolower($sem2), ['1', '3', '5', '7', 'ganjil'], true)) {
+                    $q->orWhereIn('semester', ['1', '3', '5', '7', 'Ganjil', 'ganjil']);
+                } elseif (in_array(strtolower($sem1), ['2', '4', '6', '8', 'genap'], true) || in_array(strtolower($sem2), ['2', '4', '6', '8', 'genap'], true)) {
+                    $q->orWhereIn('semester', ['2', '4', '6', '8', 'Genap', 'genap']);
+                }
+            })
             ->first();
 
         if ($existing && $existing->status === 'disetujui') {
             return response()->json(['message' => 'KRS sudah disetujui, tidak bisa diajukan ulang'], 422);
         }
 
-        $kelasList = KelasKuliah::with('mataKuliah')->whereIn('id', $data['kelas_kuliah_ids'])->get();
-
-        if ($error = $this->validasiPengajuan($uid, $data['tahun_akademik'], $data['semester'], $kelasList)) {
+        if ($error = $this->validasiPengajuan($uid, $tahunAkademik, $semester, $kelasList)) {
             return $error;
         }
 
-        $krs = DB::transaction(function () use ($existing, $uid, $data, $kelasList) {
+        $krs = DB::transaction(function () use ($existing, $uid, $tahunAkademik, $semester, $kelasList) {
             if ($existing) {
                 $existing->mataKuliah()->delete();
                 $existing->update([
+                    'tahun_akademik' => $tahunAkademik,
+                    'semester' => $semester,
                     'status' => 'diajukan',
                     'catatan_dosen' => null,
                     'disetujui_oleh' => null,
@@ -113,8 +143,8 @@ class KrsController extends Controller
             } else {
                 $krs = Krs::create([
                     'uid' => $uid,
-                    'tahun_akademik' => $data['tahun_akademik'],
-                    'semester' => $data['semester'],
+                    'tahun_akademik' => $tahunAkademik,
+                    'semester' => $semester,
                     'status' => 'diajukan',
                 ]);
             }
