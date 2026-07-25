@@ -34,10 +34,21 @@ class JadwalKuliahPage extends StatelessWidget {
 class _JadwalKuliahView extends StatelessWidget {
   const _JadwalKuliahView();
 
+  String _normalizeHari(String input) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return 'Senin';
+    final lower = trimmed.toLowerCase();
+    for (final h in _urutanHari) {
+      if (h.toLowerCase() == lower) return h;
+    }
+    return trimmed[0].toUpperCase() + trimmed.substring(1);
+  }
+
   Map<String, List<JadwalKuliah>> _groupByHari(List<JadwalKuliah> jadwal) {
     final Map<String, List<JadwalKuliah>> grouped = {};
     for (final item in jadwal) {
-      grouped.putIfAbsent(item.hari, () => []).add(item);
+      final key = _normalizeHari(item.hari);
+      grouped.putIfAbsent(key, () => []).add(item);
     }
     for (final list in grouped.values) {
       list.sort((a, b) => a.jamMulai.compareTo(b.jamMulai));
@@ -88,7 +99,10 @@ class _JadwalKuliahView extends StatelessWidget {
 
           final grouped = _groupByHari(jadwal);
           final jadwalHariIni = grouped[hariIni] ?? [];
-          final hariTerurut = _urutanHari.where(grouped.containsKey).toList();
+          final hariTerurut = [
+            ..._urutanHari.where(grouped.containsKey),
+            ...grouped.keys.where((k) => !_urutanHari.contains(k)),
+          ];
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
