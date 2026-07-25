@@ -62,7 +62,7 @@ class HelpUploadPage extends StatelessWidget {
               ]),
               _buildStep(5, 'Isi Keterangan', [
                 'Contoh:',
-                '"Pembayaran SPP Semester Ganjil 2025 via BCA Mobile tanggal 8 Oktober 2025."',
+                '"Pembayaran SPP Semester 3 2025 via BCA Mobile tanggal 8 Oktober 2025."',
               ]),
               _buildStep(6, 'Kirim / Submit', [
                 'Setelah semua diisi, tekan "Kirim Konfirmasi Pembayaran".',

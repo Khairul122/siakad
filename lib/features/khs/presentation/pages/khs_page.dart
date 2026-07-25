@@ -169,7 +169,7 @@ class _KhsView extends StatelessWidget {
                 const SizedBox(height: 12),
                 _infoRow('Tahun Akademik', controller.tahunAkademik),
                 const SizedBox(height: 6),
-                _infoRow('Semester', controller.semester),
+                _infoRow('Semester', controller.semester == '-' ? '-' : 'Semester ${controller.semester}'),
                 const SizedBox(height: 6),
                 _infoRow('Jumlah MK', '${nilaiList.length} Mata Kuliah'),
                 const SizedBox(height: 6),
