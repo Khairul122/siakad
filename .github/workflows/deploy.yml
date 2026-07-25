@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - backend
+  workflow_dispatch:
+    inputs:
+      full_resync:
+        description: "Full clean re-upload (deletes anything on server not in this build, then re-uploads everything fresh). Use when server state is broken/partial from a canceled upload."
+        type: boolean
+        default: false
 
 jobs:
   web-deploy:
@@ -30,10 +36,10 @@ jobs:
           zip -rq vendor-deploy.zip vendor
           rm -rf vendor
 
-      - name: Write deploy flag (current commit SHA)
+      - name: Write deploy flag (unique per run, so re-running the same commit still redeploys)
         run: |
           mkdir -p storage/app
-          echo "${{ github.sha }}" > storage/app/deploy.flag
+          echo "${{ github.sha }}-${{ github.run_id }}" > storage/app/deploy.flag
 
       - name: Sync application files via FTP (excludes vendor + flag)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -43,6 +49,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: public_html/siakad-backend/
           security: loose
+          dangerous-clean-slate: ${{ github.event.inputs.full_resync == 'true' }}
           exclude: |
             **/.git*
             **/.git*/**
@@ -51,6 +58,9 @@ jobs:
             .env
             phpunit.xml
             storage/app/deploy.flag
+            storage/app/deploy.state
+            vendor-deploy.zip
+            .ftp-deploy-sync-state*.json
 
       - name: Upload vendor-deploy.zip
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
