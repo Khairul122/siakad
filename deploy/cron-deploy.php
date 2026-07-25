@@ -67,8 +67,15 @@ if (!is_link($publicStoragePath)) {
         rename($publicStoragePath, $publicStoragePath . '.bak-' . time());
     }
     @mkdir($root . '/storage/app/public', 0755, true);
-    $kernel->call('storage:link');
-    echo "storage:link recreated\n";
+    // Not using artisan's storage:link here: on hosts with exec() disabled
+    // (common shared-hosting hardening) Illuminate\Filesystem\Filesystem::link()
+    // fails with "Call to undefined function exec()". PHP's own symlink()
+    // is a different function and works fine even when exec() is blocked.
+    if (symlink($root . '/storage/app/public', $publicStoragePath)) {
+        echo "storage symlink recreated\n";
+    } else {
+        fwrite(STDERR, "Failed to create storage symlink\n");
+    }
 }
 
 $kernel->call('migrate', ['--force' => true]);
