@@ -95,6 +95,16 @@ class PilihMataKuliahController extends ChangeNotifier {
       semester = inputSemester;
     }
 
+    final selectedKelasList = kelasList.where((k) => selectedIds.contains(k.id)).toList();
+    if (selectedKelasList.isNotEmpty) {
+      if (tahunAkademik.isEmpty && selectedKelasList.first.tahunAkademik.isNotEmpty) {
+        tahunAkademik = selectedKelasList.first.tahunAkademik;
+      }
+      if (semester.isEmpty && selectedKelasList.first.semester.isNotEmpty) {
+        semester = selectedKelasList.first.semester;
+      }
+    }
+
     if (selectedIds.isEmpty || melebihiKuota) return null;
 
     if (existingKrsId == null && (tahunAkademik.isEmpty || semester.isEmpty)) {
