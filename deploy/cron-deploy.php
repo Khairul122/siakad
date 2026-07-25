@@ -58,8 +58,14 @@ if (empty(env('JWT_SECRET'))) {
 }
 
 // FTP can't transfer symlinks, so public/storage never arrives with the
-// build. Recreate it on every deploy in case a full_resync wiped it.
-if (!file_exists($root . '/public/storage')) {
+// build. Recreate it on every deploy in case a full_resync wiped it, or if
+// it exists as a real directory instead of a symlink (e.g. left over from
+// a stray FTP upload) — Laravel's storage:link silently no-ops in that case.
+$publicStoragePath = $root . '/public/storage';
+if (!is_link($publicStoragePath)) {
+    if (is_dir($publicStoragePath)) {
+        rename($publicStoragePath, $publicStoragePath . '.bak-' . time());
+    }
     @mkdir($root . '/storage/app/public', 0755, true);
     $kernel->call('storage:link');
     echo "storage:link recreated\n";
