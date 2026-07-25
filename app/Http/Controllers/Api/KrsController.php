@@ -280,8 +280,8 @@ class KrsController extends Controller
     private function validasiPengajuan(string $uid, string $tahunAkademik, string $semester, $kelasList): ?JsonResponse
     {
         foreach ($kelasList as $kelas) {
-            if ($kelas->tahun_akademik !== $tahunAkademik || $kelas->semester !== $semester) {
-                return response()->json(['message' => "Kelas {$kelas->nama_kelas} tidak tersedia pada periode ini"], 422);
+            if (! $this->periodeMatch($kelas->tahun_akademik, $kelas->semester, $tahunAkademik, $semester, $kelas->mataKuliah?->semester_ke)) {
+                return response()->json(['message' => "Kelas {$kelas->nama_kelas} ({$kelas->mataKuliah?->nama}) tidak tersedia pada periode ini"], 422);
             }
         }
 
@@ -306,6 +306,41 @@ class KrsController extends Controller
         }
 
         return null;
+    }
+
+    private function periodeMatch(string $kelasTahun, string $kelasSem, string $targetTahun, string $targetSem, ?int $mkSemKe = null): bool
+    {
+        if (! empty($targetTahun) && trim(strtolower($kelasTahun)) !== trim(strtolower($targetTahun))) {
+            return false;
+        }
+
+        if (empty($targetSem)) {
+            return true;
+        }
+
+        $kSem = trim(strtolower($kelasSem));
+        $tSem = trim(strtolower($targetSem));
+
+        if ($kSem === $tSem) {
+            return true;
+        }
+
+        if ($mkSemKe !== null && (string) $mkSemKe === $tSem) {
+            return true;
+        }
+
+        $ganjil = ['1', '3', '5', '7', 'ganjil'];
+        $genap = ['2', '4', '6', '8', 'genap'];
+
+        if (in_array($kSem, $ganjil, true) && in_array($tSem, $ganjil, true)) {
+            return true;
+        }
+
+        if (in_array($kSem, $genap, true) && in_array($tSem, $genap, true)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function bentrok(KelasKuliah $a, KelasKuliah $b): bool
