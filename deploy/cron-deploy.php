@@ -57,6 +57,14 @@ if (empty(env('JWT_SECRET'))) {
     echo "JWT_SECRET generated\n";
 }
 
+// FTP can't transfer symlinks, so public/storage never arrives with the
+// build. Recreate it on every deploy in case a full_resync wiped it.
+if (!file_exists($root . '/public/storage')) {
+    @mkdir($root . '/storage/app/public', 0755, true);
+    $kernel->call('storage:link');
+    echo "storage:link recreated\n";
+}
+
 $kernel->call('migrate', ['--force' => true]);
 echo $kernel->output();
 
