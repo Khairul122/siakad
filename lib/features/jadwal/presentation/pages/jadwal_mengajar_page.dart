@@ -21,10 +21,21 @@ class _JadwalMengajarView extends StatelessWidget {
 
   static const _hariUrutan = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
+  String _normalizeHari(String input) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return 'Senin';
+    final lower = trimmed.toLowerCase();
+    for (final h in _hariUrutan) {
+      if (h.toLowerCase() == lower) return h;
+    }
+    return trimmed[0].toUpperCase() + trimmed.substring(1);
+  }
+
   Map<String, List<JadwalMengajar>> _groupByHari(List<JadwalMengajar> list) {
     final map = <String, List<JadwalMengajar>>{};
     for (final j in list) {
-      map.putIfAbsent(j.hari, () => []).add(j);
+      final key = _normalizeHari(j.hari);
+      map.putIfAbsent(key, () => []).add(j);
     }
     for (final entries in map.values) {
       entries.sort((a, b) => a.jamMulai.compareTo(b.jamMulai));
@@ -172,11 +183,24 @@ class _JadwalMengajarView extends StatelessWidget {
                   jadwal.mataKuliah,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                if (jadwal.keterangan.isNotEmpty)
-                  Text(
-                    jadwal.keterangan,
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                if (jadwal.keterangan.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      jadwal.keterangan,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
+                ],
                 const SizedBox(height: 4),
                 if (jadwal.ruangan.isNotEmpty)
                   Row(
