@@ -35,7 +35,7 @@ class PercobaanDataSeeder extends Seeder
 
     private const TAHUN_AKADEMIK = '2025/2026';
 
-    private const SEMESTER = 'Ganjil';
+    private const SEMESTER = '3';
 
     public function run(AkademikService $akademikService): void
     {
@@ -267,7 +267,7 @@ class PercobaanDataSeeder extends Seeder
                     'jam_mulai' => $kelas->jam_mulai,
                     'jam_selesai' => $kelas->jam_selesai,
                     'ruangan' => $kelas->ruangan,
-                    'keterangan' => '',
+                    'keterangan' => "Semester 3 • Kelas {$kelas->nama_kelas} ({$kelas->mataKuliah->sks} SKS)",
                 ]);
             }
         }

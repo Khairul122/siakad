@@ -267,7 +267,7 @@ class KrsController extends Controller
                     'jam_mulai' => $kelas->jam_mulai,
                     'jam_selesai' => $kelas->jam_selesai,
                     'ruangan' => $kelas->ruangan,
-                    'keterangan' => '',
+                    'keterangan' => "Semester {$krs->semester} • Kelas {$kelas->nama_kelas} ({$mk->sks} SKS)",
                 ]);
             }
         });
