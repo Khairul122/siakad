@@ -28,7 +28,9 @@ class UploadController extends Controller
         $path = $file->storeAs("uploads/{$folder}", $filename, 'public');
 
         return response()->json([
-            'url' => url('storage/'.$path),
+            // Built from the request host, not APP_URL — see HasDynamicStorageUrls
+            // for why: a stale APP_URL must not make uploaded file URLs unreachable.
+            'url' => rtrim($request->getSchemeAndHttpHost(), '/').'/storage/'.$path,
         ], 201);
     }
 }

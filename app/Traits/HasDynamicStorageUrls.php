@@ -27,7 +27,10 @@ trait HasDynamicStorageUrls
         }
 
         if (request()->is('api/*') || request()->is('api') || request()->expectsJson()) {
-            return url('storage/'.$relativePath);
+            // Build from the host the client actually hit, not the static
+            // APP_URL config — avoids stale/dev-tunnel URLs being returned
+            // when APP_URL drifts out of sync with the real deployed domain.
+            return rtrim(request()->getSchemeAndHttpHost(), '/').'/storage/'.$relativePath;
         }
 
         return $relativePath;
