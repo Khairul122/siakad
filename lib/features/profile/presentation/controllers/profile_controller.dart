@@ -30,6 +30,7 @@ class ProfileController extends ChangeNotifier {
   Dosen? dosen;
   bool isLoading = false;
   bool isSaving = false;
+  bool isUploadingPhoto = false;
   String? errorMessage;
 
   Future<void> load() async {
@@ -69,6 +70,25 @@ class ProfileController extends ChangeNotifier {
       return false;
     } finally {
       isSaving = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> uploadPhoto(String localFilePath) async {
+    isUploadingPhoto = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final downloadUrl = await _repository.uploadProfilePhoto(localFilePath);
+      await _repository.updatePhotoUrl(downloadUrl);
+      await load();
+      return true;
+    } catch (e) {
+      errorMessage = 'Gagal upload foto: $e';
+      return false;
+    } finally {
+      isUploadingPhoto = false;
       notifyListeners();
     }
   }

@@ -33,6 +33,18 @@ class ApiProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<String> uploadProfilePhoto(String localFilePath) {
+    return _api.uploadFile(localFilePath, folder: 'dosen');
+  }
+
+  @override
+  Future<void> updatePhotoUrl(String photoUrl) async {
+    final uid = SessionService.instance.uid;
+    if (uid == null) return;
+    await _api.put(ApiPaths.dosen(uid), body: {'photo_url': photoUrl});
+  }
+
+  @override
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,

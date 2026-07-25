@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:dosen/core/constants/api_config.dart';
 import 'package:dosen/core/constants/app_colors.dart';
 import 'package:dosen/features/auth/domain/dosen.dart';
 import 'package:dosen/features/profile/presentation/controllers/profile_controller.dart';
@@ -28,6 +32,9 @@ class _EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<_EditProfileView> {
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
   late final TextEditingController _namaController;
   late final TextEditingController _prodiController;
 
@@ -43,6 +50,55 @@ class _EditProfileViewState extends State<_EditProfileView> {
     _namaController.dispose();
     _prodiController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(ProfileController controller, ImageSource source) async {
+    Navigator.pop(context);
+    final pickedFile = await _picker.pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 80,
+    );
+    if (pickedFile == null || !mounted) return;
+
+    setState(() => _imageFile = File(pickedFile.path));
+    final success = await controller.uploadPhoto(pickedFile.path);
+    if (!mounted) return;
+    if (success) {
+      _showSnackBar('Foto profil berhasil diperbarui');
+    } else if (controller.errorMessage != null) {
+      _showSnackBar(controller.errorMessage!, isError: true);
+    }
+  }
+
+  void _showImageSourceDialog(ProfileController controller) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.primary),
+              title: const Text('Ambil Foto'),
+              onTap: () => _pickImage(controller, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.primary),
+              title: const Text('Pilih dari Galeri'),
+              onTap: () => _pickImage(controller, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close, color: AppColors.error),
+              title: const Text('Batal'),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _simpan(ProfileController controller) async {
@@ -61,6 +117,15 @@ class _EditProfileViewState extends State<_EditProfileView> {
         SnackBar(content: Text(controller.errorMessage!), backgroundColor: AppColors.error),
       );
     }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.primary,
+      ),
+    );
   }
 
   @override
@@ -96,6 +161,47 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   children: [
                     const SizedBox(height: 20),
                     const Text('Edit Profil', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: controller.isUploadingPhoto ? null : () => _showImageSourceDialog(controller),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 55,
+                            backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                            backgroundImage: _imageFile != null
+                                ? FileImage(_imageFile!) as ImageProvider
+                                : ((widget.dosen?.photoUrl ?? '').isNotEmpty
+                                    ? NetworkImage(
+                                        ApiConfig.resolveImageUrl(widget.dosen!.photoUrl),
+                                        headers: const {'localtonet-skip-warning': 'true'},
+                                      )
+                                    : null),
+                            child: _imageFile == null && (widget.dosen?.photoUrl ?? '').isEmpty
+                                ? const Icon(Icons.person, size: 55, color: AppColors.primary)
+                                : null,
+                          ),
+                          if (controller.isUploadingPhoto)
+                            const CircularProgressIndicator(color: AppColors.primary),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: controller.isUploadingPhoto ? null : () => _showImageSourceDialog(controller),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            controller.isUploadingPhoto ? 'Mengupload...' : 'Edit Foto',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 5),
+                          const Icon(Icons.edit, size: 16),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 25),
                     _buildReadOnly(
                       'NIP/NIDN',

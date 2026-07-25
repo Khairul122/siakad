@@ -8,6 +8,10 @@ abstract class ProfileRepository {
     required String prodi,
   });
 
+  Future<String> uploadProfilePhoto(String localFilePath);
+
+  Future<void> updatePhotoUrl(String photoUrl);
+
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,
