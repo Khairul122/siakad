@@ -21,6 +21,9 @@ CLAUDE.md
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/deploy.flag
+/storage/app/deploy.state
+/vendor-deploy.zip
 /vendor
 _ide_helper.php
 Homestead.json

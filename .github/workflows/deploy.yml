@@ -1,4 +1,4 @@
-name: Deploy SIAKAD Backend (SSH)
+name: Deploy SIAKAD Backend (FTP Hosting)
 
 on:
   push:
@@ -6,28 +6,74 @@ on:
       - backend
 
 jobs:
-  deploy:
-    name: Deploy to cPanel via SSH
+  web-deploy:
+    name: Build & Deploy to FTP Hosting
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            cd ${{ secrets.APP_PATH }}
-            git fetch origin backend
-            git reset --hard origin/backend
-            ${{ secrets.PHP_BIN || 'php' }} $(command -v composer || echo composer) install --no-dev --optimize-autoloader --no-interaction
-            ${{ secrets.PHP_BIN || 'php' }} artisan config:clear
-            ${{ secrets.PHP_BIN || 'php' }} artisan migrate --force
-            ${{ secrets.PHP_BIN || 'php' }} artisan config:cache
-            ${{ secrets.PHP_BIN || 'php' }} artisan route:cache
-            ${{ secrets.PHP_BIN || 'php' }} artisan view:cache
-            ${{ secrets.PHP_BIN || 'php' }} artisan l5-swagger:generate || true
-            ${{ secrets.PHP_BIN || 'php' }} artisan queue:restart || true
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, gd, json, openssl, pdo, pdo_mysql, tokenizer, xml, zip
+          tools: composer:v2
+
+      - name: Install Composer Dependencies
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Zip vendor for single-file upload
+        run: |
+          zip -rq vendor-deploy.zip vendor
+          rm -rf vendor
+
+      - name: Write deploy flag (current commit SHA)
+        run: |
+          mkdir -p storage/app
+          echo "${{ github.sha }}" > storage/app/deploy.flag
+
+      - name: Sync application files via FTP (excludes vendor + flag)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: public_html/siakad-backend/
+          security: loose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            .env
+            phpunit.xml
+            storage/app/deploy.flag
+
+      - name: Upload vendor-deploy.zip
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: public_html/siakad-backend/
+          local-dir: ./
+          state-name: .ftp-deploy-sync-state-vendor.json
+          exclude: |
+            **
+            !vendor-deploy.zip
+
+      - name: Upload deploy flag last (triggers cron-deploy.php)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: public_html/siakad-backend/storage/app/
+          local-dir: ./storage/app/
+          state-name: .ftp-deploy-sync-state-flag.json
+          exclude: |
+            **
+            !deploy.flag
