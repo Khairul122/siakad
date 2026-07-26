@@ -36,6 +36,7 @@ class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
         'kelas',
         'angkatan',
         'prodi',
+        'fakultas',
         'dosen_pembimbing_uid',
         'fcm_token',
     ];
@@ -43,6 +44,11 @@ class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
     protected $hidden = [
         'password',
     ];
+
+    public function getFakultasAttribute($value)
+    {
+        return $value ?: 'Teknik';
+    }
 
     public function getJWTIdentifier()
     {

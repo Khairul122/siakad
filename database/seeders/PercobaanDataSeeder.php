@@ -305,6 +305,7 @@ class PercobaanDataSeeder extends Seeder
                     'kelas' => 'SI-3A',
                     'angkatan' => '2023',
                     'prodi' => 'Sistem Informasi',
+                    'fakultas' => 'Teknik',
                     'dosen_pembimbing_uid' => $dosenList[$d['dosen']]->uid,
                 ]
             );

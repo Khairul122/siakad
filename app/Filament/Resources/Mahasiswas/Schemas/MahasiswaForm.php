@@ -85,10 +85,30 @@ class MahasiswaForm
                             ->prefixIcon('heroicon-o-users')
                             ->placeholder('Contoh: 2023')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
-                        TextInput::make('prodi')
+                        Select::make('prodi')
                             ->label('Program Studi')
                             ->prefixIcon('heroicon-o-academic-cap')
-                            ->placeholder('Contoh: Sistem Informasi')
+                            ->options([
+                                'Sistem Informasi' => 'Sistem Informasi',
+                                'Teknik Informatika' => 'Teknik Informatika',
+                                'Teknik Komputer' => 'Teknik Komputer',
+                                'Manajemen Informatika' => 'Manajemen Informatika',
+                            ])
+                            ->live()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                if (in_array($state, ['Sistem Informasi', 'Teknik Informatika', 'Teknik Komputer', 'Manajemen Informatika'], true)) {
+                                    $set('fakultas', 'Teknik');
+                                }
+                            })
+                            ->dehydrateStateUsing(fn ($state) => $state ?? ''),
+                        Select::make('fakultas')
+                            ->label('Fakultas')
+                            ->prefixIcon('heroicon-o-building-library')
+                            ->options([
+                                'Teknik' => 'Teknik',
+                                'Ekonomi & Bisnis' => 'Ekonomi & Bisnis',
+                                'Ilmu Komputer' => 'Ilmu Komputer',
+                            ])
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         Select::make('dosen_pembimbing_uid')
                             ->relationship('dosenPembimbing', 'nama')
