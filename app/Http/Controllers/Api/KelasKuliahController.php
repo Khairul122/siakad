@@ -68,6 +68,19 @@ class KelasKuliahController extends Controller
             ->unique('uid')
             ->values();
 
+        if ($mahasiswa->isEmpty()) {
+            $kelas = KelasKuliah::with('mataKuliah')->find($id);
+            if ($kelas && $kelas->mataKuliah) {
+                $query = \App\Models\Mahasiswa::query();
+                if ($kelas->mataKuliah->prodi) {
+                    $query->where('prodi', $kelas->mataKuliah->prodi);
+                }
+                $mahasiswa = $query->get();
+            } else {
+                $mahasiswa = \App\Models\Mahasiswa::all();
+            }
+        }
+
         return response()->json($mahasiswa);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\KelasKuliah;
+use App\Models\KrsMataKuliah;
 use App\Models\Nilai;
 use App\Services\AkademikService;
 use Illuminate\Http\JsonResponse;
@@ -67,6 +68,17 @@ class NilaiController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['message' => 'Validasi gagal', 'errors' => $validator->errors()], 422);
+        }
+
+        $approvedKrs = KrsMataKuliah::where('kelas_kuliah_id', $kelasKuliahId)
+            ->whereHas('krs', function ($query) use ($mahasiswaUid) {
+                $query->where('uid', $mahasiswaUid)
+                    ->where('status', 'disetujui');
+            })
+            ->exists();
+
+        if (! $approvedKrs) {
+            return response()->json(['message' => 'Mahasiswa tidak terdaftar di kelas ini melalui KRS yang disetujui'], 422);
         }
 
         $data = $validator->validated();
