@@ -45,6 +45,11 @@ class Mahasiswa extends Model implements AuthenticatableContract, JWTSubject
         'password',
     ];
 
+    public function getFakultasAttribute($value)
+    {
+        return $value ?: 'Teknik';
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
