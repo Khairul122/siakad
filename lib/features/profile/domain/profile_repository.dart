@@ -11,6 +11,7 @@ abstract class ProfileRepository {
     required String kelas,
     required String angkatan,
     required String prodi,
+    required String fakultas,
   });
 
   Future<String> uploadProfilePhoto(String localFilePath);

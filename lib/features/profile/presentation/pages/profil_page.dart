@@ -140,6 +140,13 @@ class _ProfileViewState extends State<_ProfileView> {
                   Text(nim, style: const TextStyle(color: Colors.black54, fontSize: 14)),
                   const SizedBox(height: 4),
                   Text(email, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                  if (user != null && (user.prodi.isNotEmpty || user.fakultas.isNotEmpty)) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      [if (user.prodi.isNotEmpty) user.prodi, if (user.fakultas.isNotEmpty) user.fakultas].join(' • '),
+                      style: const TextStyle(color: Colors.black45, fontSize: 12),
+                    ),
+                  ],
                   const SizedBox(height: 40),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

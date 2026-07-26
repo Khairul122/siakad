@@ -10,6 +10,7 @@ class AppUser {
   final String kelas;
   final String angkatan;
   final String prodi;
+  final String fakultas;
 
   const AppUser({
     required this.uid,
@@ -23,6 +24,7 @@ class AppUser {
     this.kelas = '',
     this.angkatan = '',
     this.prodi = '',
+    this.fakultas = '',
   });
 
   factory AppUser.fromMap(Map<String, dynamic> map) {
@@ -38,6 +40,7 @@ class AppUser {
       kelas: map['kelas'] ?? '',
       angkatan: map['angkatan'] ?? '',
       prodi: map['prodi'] ?? '',
+      fakultas: map['fakultas'] ?? '',
     );
   }
 
@@ -54,6 +57,7 @@ class AppUser {
       'kelas': kelas,
       'angkatan': angkatan,
       'prodi': prodi,
+      'fakultas': fakultas,
     };
   }
 }

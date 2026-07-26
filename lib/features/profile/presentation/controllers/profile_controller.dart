@@ -57,6 +57,7 @@ class ProfileController extends ChangeNotifier {
     required String kelas,
     required String angkatan,
     required String prodi,
+    required String fakultas,
   }) async {
     if (nama.isEmpty) {
       errorMessage = 'Nama tidak boleh kosong';
@@ -77,6 +78,7 @@ class ProfileController extends ChangeNotifier {
         kelas: kelas,
         angkatan: angkatan,
         prodi: prodi,
+        fakultas: fakultas,
       );
       await load();
       return true;

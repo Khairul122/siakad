@@ -25,6 +25,7 @@ class ApiProfileRepository implements ProfileRepository {
     required String kelas,
     required String angkatan,
     required String prodi,
+    required String fakultas,
   }) async {
     final uid = SessionService.instance.uid;
     if (uid == null) return;
@@ -37,6 +38,7 @@ class ApiProfileRepository implements ProfileRepository {
       'kelas': kelas,
       'angkatan': angkatan,
       'prodi': prodi,
+      'fakultas': fakultas,
     });
   }
 

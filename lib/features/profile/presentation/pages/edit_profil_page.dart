@@ -42,6 +42,7 @@ class _EditProfilViewState extends State<_EditProfilView> {
   late final TextEditingController _kelasController;
   late final TextEditingController _angkatanController;
   late final TextEditingController _prodiController;
+  late final TextEditingController _fakultasController;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _EditProfilViewState extends State<_EditProfilView> {
     _kelasController = TextEditingController(text: widget.user?.kelas ?? '');
     _angkatanController = TextEditingController(text: widget.user?.angkatan ?? '');
     _prodiController = TextEditingController(text: widget.user?.prodi ?? '');
+    _fakultasController = TextEditingController(text: widget.user?.fakultas ?? '');
   }
 
   @override
@@ -64,6 +66,7 @@ class _EditProfilViewState extends State<_EditProfilView> {
     _kelasController.dispose();
     _angkatanController.dispose();
     _prodiController.dispose();
+    _fakultasController.dispose();
     super.dispose();
   }
 
@@ -153,6 +156,7 @@ class _EditProfilViewState extends State<_EditProfilView> {
       kelas: _kelasController.text.trim(),
       angkatan: _angkatanController.text.trim(),
       prodi: _prodiController.text.trim(),
+      fakultas: _fakultasController.text.trim(),
     );
     if (!mounted) return;
     if (success) {
@@ -284,6 +288,7 @@ class _EditProfilViewState extends State<_EditProfilView> {
               _buildTextField('Angkatan', _angkatanController,
                   type: TextInputType.number, hint: 'contoh: 2024'),
               _buildTextField('Program Studi', _prodiController, hint: 'contoh: Sistem Informasi'),
+              _buildTextField('Fakultas', _fakultasController, hint: 'contoh: Fakultas Ilmu Komputer'),
               const SizedBox(height: 25),
               SizedBox(
                 width: double.infinity,
