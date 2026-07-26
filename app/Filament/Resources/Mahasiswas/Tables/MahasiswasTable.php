@@ -47,6 +47,10 @@ class MahasiswasTable
                     ->label('Program Studi')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('fakultas')
+                    ->label('Fakultas')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('dosenPembimbing.nama')
                     ->label('Dosen Pembimbing')
                     ->searchable()
@@ -63,6 +67,8 @@ class MahasiswasTable
             ->filters([
                 SelectFilter::make('prodi')
                     ->options(fn () => Mahasiswa::query()->distinct()->pluck('prodi', 'prodi')->filter()->all()),
+                SelectFilter::make('fakultas')
+                    ->options(fn () => Mahasiswa::query()->distinct()->pluck('fakultas', 'fakultas')->filter()->all()),
                 SelectFilter::make('angkatan')
                     ->options(fn () => Mahasiswa::query()->distinct()->pluck('angkatan', 'angkatan')->filter()->all()),
                 SelectFilter::make('kelas')

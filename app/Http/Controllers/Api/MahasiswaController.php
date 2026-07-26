@@ -57,7 +57,7 @@ class MahasiswaController extends Controller
 
         $mahasiswa->update($request->only([
             'nama', 'no_hp', 'tanggal_lahir', 'alamat', 'photo_url',
-            'kelas', 'angkatan', 'prodi', 'dosen_pembimbing_uid', 'fcm_token',
+            'kelas', 'angkatan', 'prodi', 'fakultas', 'dosen_pembimbing_uid', 'fcm_token',
         ]));
 
         return response()->json($mahasiswa);

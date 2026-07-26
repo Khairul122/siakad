@@ -90,6 +90,11 @@ class MahasiswaForm
                             ->prefixIcon('heroicon-o-academic-cap')
                             ->placeholder('Contoh: Sistem Informasi')
                             ->dehydrateStateUsing(fn ($state) => $state ?? ''),
+                        TextInput::make('fakultas')
+                            ->label('Fakultas')
+                            ->prefixIcon('heroicon-o-building-office-2')
+                            ->placeholder('Contoh: Fakultas Ilmu Komputer')
+                            ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                         Select::make('dosen_pembimbing_uid')
                             ->relationship('dosenPembimbing', 'nama')
                             ->searchable()

@@ -18,6 +18,7 @@ use OpenApi\Attributes as OAT;
         new OAT\Property(property: 'kelas', type: 'string'),
         new OAT\Property(property: 'angkatan', type: 'string'),
         new OAT\Property(property: 'prodi', type: 'string'),
+        new OAT\Property(property: 'fakultas', type: 'string'),
         new OAT\Property(property: 'dosen_pembimbing_uid', type: 'string', nullable: true),
     ]
 )]

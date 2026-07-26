@@ -38,6 +38,7 @@ CREATE TABLE mahasiswa (
     kelas VARCHAR(100) DEFAULT '',
     angkatan VARCHAR(20) DEFAULT '',
     prodi VARCHAR(255) DEFAULT '',
+    fakultas VARCHAR(255) DEFAULT '',
     dosen_pembimbing_uid VARCHAR(128) DEFAULT NULL COMMENT 'aplikasi menulis string kosong saat belum ada pembimbing, bukan NULL - lakukan konversi ke NULL saat sinkronisasi agar FK ini valid',
     fcm_token VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
