@@ -5,6 +5,7 @@ class MahasiswaBimbingan {
   final String email;
   final String photoUrl;
   final String prodi;
+  final String fakultas;
   final String angkatan;
   final String noHp;
 
@@ -15,6 +16,7 @@ class MahasiswaBimbingan {
     required this.email,
     this.photoUrl = '',
     this.prodi = '',
+    this.fakultas = '',
     this.angkatan = '',
     this.noHp = '',
   });
@@ -26,6 +28,7 @@ class MahasiswaBimbingan {
         email: map['email'] ?? '',
         photoUrl: map['photo_url'] ?? '',
         prodi: map['prodi'] ?? '',
+        fakultas: map['fakultas'] ?? '',
         angkatan: map['angkatan']?.toString() ?? '',
         noHp: map['no_hp'] ?? '',
       );
@@ -37,6 +40,7 @@ class MahasiswaBimbingan {
         'email': email,
         'photo_url': photoUrl,
         'prodi': prodi,
+        'fakultas': fakultas,
         'angkatan': angkatan,
         'no_hp': noHp,
       };
